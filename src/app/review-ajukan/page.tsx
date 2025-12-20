@@ -63,7 +63,7 @@ export default function ReviewAjukanPage() {
 
       <Card title="Detail Surat Pengajuan">
         <SimpleGrid>
-          <GridRow label="Jenis Surat" value={surat.jenis} />
+          <GridRow label="Jenis Surat" value={surat.jenis} full />
           <GridRow label="Keperluan" value={surat.keperluan} full />
         </SimpleGrid>
       </Card>

@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { Check } from "lucide-react";
 
 type StepperProps = {
   steps: string[];
@@ -10,16 +11,19 @@ export function Stepper({ steps, current }: StepperProps) {
     steps.length > 1 ? Math.max(0, Math.min(1, (current - 1) / (steps.length - 1))) : 0;
 
   return (
-    <div className="relative px-2 py-3">
-      <div className="absolute left-4 right-4 top-1/2 h-[2px] -translate-y-1/2 bg-gray-200" />
-      <div
-        className="absolute left-4 top-1/2 h-[2px] -translate-y-1/2 bg-[#0A77C8] transition-all duration-300"
-        style={{ width: `calc(${progress * 100}% - 0px)` }}
-      />
+    <div className="relative px-4 pb-3 pt-2">
+      <div className="absolute left-15 right-15 top-[23px] h-[2px] bg-gray-200" />
+      <div className="absolute left-15 right-15 top-[23px] h-[2px] overflow-hidden">
+        <div
+          className="h-full bg-[#0A77C8] transition-[width] duration-300"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
 
       <div className="relative flex items-center justify-between gap-4">
         {steps.map((step, index) => {
           const position = index + 1;
+          const completed = position < current;
           const active = position === current;
 
           return (
@@ -27,10 +31,12 @@ export function Stepper({ steps, current }: StepperProps) {
               <div
                 className={clsx(
                   "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)]",
-                  active ? "bg-[#0A77C8] text-white" : "bg-gray-200 text-gray-600"
+                  completed && "bg-[#0A77C8] text-white",
+                  active && !completed && "bg-[#0A77C8] text-white",
+                  !completed && !active && "bg-gray-200 text-gray-600"
                 )}
               >
-                {position}
+                {completed ? <Check size={16} strokeWidth={2.5} /> : position}
               </div>
               <span
                 className={clsx(
