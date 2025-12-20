@@ -5,10 +5,14 @@ import { Stepper } from "@frontend/components/layout/stepper";
 import { applicant } from "@frontend/data/applicant";
 import { clsx } from "clsx";
 import Link from "next/link";
+import { useState } from "react";
 
 const steps = ["Info Pengajuan", "Detail Pengajuan", "Lampiran", "Review & Ajukan"];
 
 export default function Home() {
+  const [phone, setPhone] = useState(applicant.phone ?? "");
+  const [address, setAddress] = useState(applicant.address ?? "");
+
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 sm:px-6">
       <Breadcrumbs
@@ -48,10 +52,24 @@ export default function Home() {
 
           <FormField
             label="No. HP"
-            value={applicant.phone}
+            value={phone}
             placeholder="Contoh: 081234567890"
+            inputProps={{
+              type: "text",
+              inputMode: "numeric",
+              pattern: "[0-9]*",
+              onChange: (e) => {
+                const digitsOnly = e.target.value.replace(/\D/g, "");
+                setPhone(digitsOnly);
+              },
+            }}
           />
-          <FormField label="Alamat" value={applicant.address} placeholder="Masukkan Alamat" />
+          <FormField
+            label="Alamat"
+            value={address}
+            placeholder="Masukkan Alamat"
+            inputProps={{ onChange: (e) => setAddress(e.target.value) }}
+          />
         </div>
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

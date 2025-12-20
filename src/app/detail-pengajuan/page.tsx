@@ -2,11 +2,15 @@
 
 import { Breadcrumbs } from "@frontend/components/layout/breadcrumbs";
 import { Stepper } from "@frontend/components/layout/stepper";
+import { clsx } from "clsx";
 import Link from "next/link";
+import { useState } from "react";
 
 const steps = ["Info Pengajuan", "Detail Pengajuan", "Lampiran", "Review & Ajukan"];
 
 export default function DetailPengajuanPage() {
+  const [keperluan, setKeperluan] = useState("");
+
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 sm:px-6">
       <Breadcrumbs
@@ -31,7 +35,8 @@ export default function DetailPengajuanPage() {
           <FormField
             label="Keperluan Surat"
             placeholder="Tulis perihal singkat yang mewakili isi surat."
-            value=""
+            value={keperluan}
+            inputProps={{ onChange: (e) => setKeperluan(e.target.value) }}
           />
         </div>
 
@@ -73,14 +78,19 @@ function FormField({
   placeholder?: string;
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
+  const editable = Boolean(inputProps?.onChange);
+
   return (
     <label className="flex flex-col gap-1 text-sm text-gray-700">
       <span className="font-semibold text-gray-800">{label}</span>
       <input
         value={value}
         placeholder={placeholder}
-        readOnly={!inputProps?.onChange}
-        className="w-full rounded-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-800 shadow-[inset_0_1px_0_rgba(0,0,0,0.03)] focus:border-[#0A77C8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A77C8]/20"
+        readOnly={!editable}
+        className={clsx(
+          "w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 shadow-[inset_0_1px_0_rgba(0,0,0,0.03)] focus:border-[#0A77C8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A77C8]/20",
+          editable ? "bg-white" : "bg-gray-100"
+        )}
         {...inputProps}
       />
     </label>
