@@ -10,13 +10,6 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "baseUrl": ".",
-    "paths": {
-      "@frontend": ["./src"],
-      "@frontend/*": ["./src/*"],
-      "@backend": ["../e-office-api-v2/src"],
-      "@backend/*": ["../e-office-api-v2/src/*"]
-    },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
@@ -25,7 +18,15 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@frontend": ["./src"],
+      "@frontend/*": ["./src/*"],
+      "@backend": ["../e-office-api-v2/src"],
+      "@backend/*": ["../e-office-api-v2/src/*"],
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "next-env.d.ts",

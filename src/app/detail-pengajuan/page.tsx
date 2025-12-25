@@ -1,98 +1,129 @@
 "use client";
 
-import { Breadcrumbs } from "@frontend/components/layout/breadcrumbs";
-import { Stepper } from "@frontend/components/layout/stepper";
-import { clsx } from "clsx";
-import Link from "next/link";
-import { useState } from "react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-const steps = ["Info Pengajuan", "Detail Pengajuan", "Lampiran", "Review & Ajukan"];
+import { Navbar } from "@/components/Navbar";
+import { PageHeader } from "@/components/PageHeader";
+import { FormStepper } from "@/components/FormStepper";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const formSchema = z.object({
+  jenisSurat: z.string(),
+  keperluan: z.string().min(1, { message: "Keperluan harus diisi." }),
+});
 
 export default function DetailPengajuanPage() {
-  const [keperluan, setKeperluan] = useState("");
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+    defaultValues: {
+      jenisSurat: "AK 007",
+      keperluan: "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log(values);
+  };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 sm:px-6">
-      <Breadcrumbs
-        items={[
-          { label: "Form Pengajuan Surat", href: "#" },
-          { label: "Detail Pengajuan" },
-        ]}
-      />
+    <div className="min-h-screen bg-[#F3F3F3]">
+      <Navbar />
 
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">Detail Pengajuan</h1>
-        <p className="max-w-3xl text-sm text-gray-600">
-          Lengkapi detail utama dari surat yang akan diajukan.
-        </p>
-      </header>
+      <main className="container mx-auto max-w-5xl px-4 py-8">
+        <PageHeader
+          title="Detail Pengajuan"
+          description="Lengkapi detail utama dari surat yang akan diajukan."
+          breadcrumbItems={[
+            { label: "Form Pengajuan Surat", href: "/" },
+            { label: "Detail Pengajuan" },
+          ]}
+        />
 
-      <Stepper steps={steps} current={2} />
+        <FormStepper
+          currentStep={2}
+          steps={[
+            { label: "Info Pengajuan" },
+            { label: "Detail Pengajuan" },
+            { label: "Lampiran" },
+            { label: "Review & Ajukan" },
+          ]}
+        />
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200 sm:p-8">
-        <div className="flex flex-col gap-4">
-          <FormField label="Jenis Surat" value="AK 007" />
-          <FormField
-            label="Keperluan Surat"
-            placeholder="Tulis perihal singkat yang mewakili isi surat."
-            value={keperluan}
-            inputProps={{ onChange: (e) => setKeperluan(e.target.value) }}
-          />
-        </div>
+        <Card className="border-none shadow-sm mt-6">
+          <CardContent className="p-6 md:px-16 md:py-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid gap-6">
+                  <FormField
+                    control={form.control}
+                    name="jenisSurat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Jenis Surat</FormLabel>
+                        <FormControl>
+                          <Input className="bg-slate-100" readOnly {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            href="/"
-            className="rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
-          >
-            Kembali
-          </Link>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="rounded-full border border-[#0A77C8] px-5 py-2 text-sm font-semibold text-[#0A77C8] transition hover:bg-[#0A77C8]/10"
-            >
+                  <FormField
+                    control={form.control}
+                    name="keperluan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Keperluan Surat</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Tulis perihal singkat yang mewakili isi surat."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <div className="mt-8 flex justify-between">
+          <Button variant="outline" className="px-8" asChild>
+            <a href="/">Kembali</a>
+          </Button>
+          <div className="flex gap-4">
+            <Button variant="outline" className="border-[#0078C9] text-[#0078C9] hover:bg-[#0078C9]/5">
               Simpan Draft
-            </button>
-            <Link
-              href="/lampiran"
-              className="rounded-full bg-[#0A77C8] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#085ea0]"
+            </Button>
+            <Button
+              type="submit"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={!form.formState.isValid}
+              className={form.formState.isValid ? "bg-[#0078C9] text-white hover:bg-[#0078C9]/90" : "cursor-not-allowed bg-slate-300 text-slate-500"}
+              asChild
             >
-              Lanjut
-            </Link>
+              <a href="/lampiran">Lanjut</a>
+            </Button>
           </div>
         </div>
-      </section>
-    </main>
-  );
-}
-
-function FormField({
-  label,
-  value,
-  placeholder,
-  inputProps,
-}: {
-  label: string;
-  value?: string;
-  placeholder?: string;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
-}) {
-  const editable = Boolean(inputProps?.onChange);
-
-  return (
-    <label className="flex flex-col gap-1 text-sm text-gray-700">
-      <span className="font-semibold text-gray-800">{label}</span>
-      <input
-        value={value}
-        placeholder={placeholder}
-        readOnly={!editable}
-        className={clsx(
-          "w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 shadow-[inset_0_1px_0_rgba(0,0,0,0.03)] focus:border-[#0A77C8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0A77C8]/20",
-          editable ? "bg-white" : "bg-gray-100"
-        )}
-        {...inputProps}
-      />
-    </label>
+      </main>
+    </div>
   );
 }
