@@ -49,7 +49,7 @@ export default function DetailPengajuanPage() {
           title="Detail Pengajuan"
           description="Lengkapi detail utama dari surat yang akan diajukan."
           breadcrumbItems={[
-            { label: "Form Pengajuan Surat", href: "/" },
+            { label: "Form Pengajuan Surat", href: "/identitas-pemohon" },
             { label: "Detail Pengajuan" },
           ]}
         />
@@ -107,7 +107,7 @@ export default function DetailPengajuanPage() {
 
         <div className="mt-8 flex justify-between">
           <Button variant="outline" asChild>
-            <Link href="/">Kembali</Link>
+            <Link href="/identitas-pemohon">Kembali</Link>
           </Button>
 
           <div className="flex gap-4">
