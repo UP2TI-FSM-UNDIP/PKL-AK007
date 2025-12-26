@@ -4,6 +4,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Link from "next/link";
 
 import { Navbar } from "@/components/Navbar";
 import { PageHeader } from "@/components/PageHeader";
@@ -63,10 +64,10 @@ export default function DetailPengajuanPage() {
           ]}
         />
 
-        <Card className="border-none shadow-sm mt-6">
+        <Card className="mt-6 border-none shadow-sm">
           <CardContent className="p-6 md:px-16 md:py-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form className="space-y-6">
                 <div className="grid gap-6">
                   <FormField
                     control={form.control}
@@ -105,21 +106,29 @@ export default function DetailPengajuanPage() {
         </Card>
 
         <div className="mt-8 flex justify-between">
-          <Button variant="outline" className="px-8" asChild>
-            <a href="/">Kembali</a>
+          <Button variant="outline" asChild>
+            <Link href="/">Kembali</Link>
           </Button>
+
           <div className="flex gap-4">
-            <Button variant="outline" className="border-[#0078C9] text-[#0078C9] hover:bg-[#0078C9]/5">
+            <Button
+              variant="outline"
+              className="border-[#0078C9] text-[#0078C9] hover:bg-[#0078C9]/5"
+            >
               Simpan Draft
             </Button>
+
             <Button
-              type="submit"
-              onClick={form.handleSubmit(onSubmit)}
+              type="button"
               disabled={!form.formState.isValid}
-              className={form.formState.isValid ? "bg-[#0078C9] text-white hover:bg-[#0078C9]/90" : "cursor-not-allowed bg-slate-300 text-slate-500"}
+              className={
+                form.formState.isValid
+                  ? "bg-[#0078C9] text-white hover:bg-[#0078C9]/90"
+                  : "cursor-not-allowed bg-slate-300 text-slate-500"
+              }
               asChild
             >
-              <a href="/lampiran">Lanjut</a>
+              <Link href="/lampiran">Lanjut</Link>
             </Button>
           </div>
         </div>

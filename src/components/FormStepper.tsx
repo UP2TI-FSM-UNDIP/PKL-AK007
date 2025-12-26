@@ -1,12 +1,13 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 interface Step {
-  label: string
+  label: string;
 }
 
 interface FormStepperProps {
-  steps: Step[]
-  currentStep: number
+  steps: Step[];
+  currentStep: number;
 }
 
 export function FormStepper({ steps, currentStep }: FormStepperProps) {
@@ -19,9 +20,9 @@ export function FormStepper({ steps, currentStep }: FormStepperProps) {
         </div>
 
         {steps.map((step, index) => {
-          const stepNumber = index + 1
-          const isActive = stepNumber === currentStep
-          const isCompleted = stepNumber < currentStep
+          const stepNumber = index + 1;
+          const isActive = stepNumber === currentStep;
+          const isCompleted = stepNumber < currentStep;
 
           return (
             <div key={index} className="relative flex flex-col items-center gap-2">
@@ -33,7 +34,11 @@ export function FormStepper({ steps, currentStep }: FormStepperProps) {
                     : "bg-[#D1D5DB] text-slate-500"
                 )}
               >
-                {stepNumber}
+                {isCompleted ? (
+                  <Check size={16} className="text-white" />
+                ) : (
+                  stepNumber
+                )}
               </div>
               <span
                 className={cn(
@@ -44,9 +49,9 @@ export function FormStepper({ steps, currentStep }: FormStepperProps) {
                 {step.label}
               </span>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
