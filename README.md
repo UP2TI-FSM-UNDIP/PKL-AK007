@@ -17,7 +17,7 @@ Repositori monorepo untuk aplikasi e-office (frontend Next.js + shadcn/ui dan ba
 - Docs: Typedoc (Markdown).
 - Package manager: npm/bun (workspaces).
 
-## Struktur Folder (2 level)
+## Struktur Folder 
 - `e-office-webapp-v2/` – Frontend Next.js
   - `src/app/` – Halaman/route
   - `src/components/` – Komponen UI
@@ -26,7 +26,7 @@ Repositori monorepo untuk aplikasi e-office (frontend Next.js + shadcn/ui dan ba
 - `e-office-api-v2/` – Backend/API (lihat folder ini jika dipakai)
 - `.github/workflows/` – Pipeline CI (docs.yml)
 
-## Cara Jalanin
+## Cara Menjalankan
 ```bash
 # dari root monorepo
 cd e-office-webapp-v2
