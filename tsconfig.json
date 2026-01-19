@@ -19,14 +19,22 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
+    "paths": {
+      "@frontend": ["./src"],
+      "@frontend/*": ["./src/*"],
+      "@backend": ["../e-office-api-v2/src"],
+      "@backend/*": ["../e-office-api-v2/src/*"],
+      "@/*": ["./src/*"]
+    }
   },
-  // "include": [
-  //   "next-env.d.ts",
-  //   "**/*.ts",
-  //   "**/*.tsx",
-  //   ".next/types/**/*.ts",
-  //   ".next/dev/types/**/*.ts",
-  //   "**/*.mts"
-  // ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
   "exclude": ["node_modules"]
 }

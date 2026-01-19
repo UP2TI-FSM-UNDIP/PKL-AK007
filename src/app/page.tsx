@@ -1,85 +1,123 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default function Home() {
-  // Hapus kata 'pages' dan gunakan slash di depan
-  redirect("/persuratan/akademik/skl/form/dataDiri");
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const domainMap: Record<string, string> = {
+    "mahasiswa.com": "/mahasiswa/identitas-pemohon",
+    "spvak.com": "/supervisorAkademik",
+    "mantu.com": "/manajerTU",
+    "upa.com": "/UPA",
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const domain = (email.split("@")[1] || "").toLowerCase();
+    const dest = domainMap[domain] || "/mahasiswa/identitas-pemohon";
+    router.push(dest);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F5F7FA]">
+      <header className="flex h-14 items-center justify-between bg-[#0A77C8] px-6 text-white">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
+            FSM
+          </div>
+          <div className="leading-tight">
+            <p className="text-[11px] uppercase tracking-wide opacity-80">Fakultas</p>
+            <p className="text-sm font-semibold">Sains dan Matematika</p>
+            <p className="text-[11px] opacity-80">Universitas Diponegoro</p>
+          </div>
+        </div>
+        <div className="h-8 w-8 rounded-full bg-white/20" />
+      </header>
+
+      <main className="flex min-h-[calc(100vh-56px)] items-center justify-center px-4 py-10">
+        <Card className="w-full max-w-5xl border-none shadow-lg">
+          <CardContent className="grid gap-0 p-0 md:grid-cols-2">
+            <div className="flex flex-col gap-4 rounded-l-2xl bg-white px-10 py-12">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0A77C8]/10 text-[#0A77C8]">
+                <span className="text-xl font-bold" aria-hidden>
+                  🔒
+                </span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">FSM UNDIP SSO</h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Welcome to FSM UNDIP Application Portal. Please sign in to access your dashboard.
+                </p>
+              </div>
+              <p className="mt-auto text-xs text-slate-500">
+                © 2025 UPTI FSM UNDIP. All Rights Reserved.
+              </p>
+            </div>
+
+            <div className="rounded-r-2xl bg-white px-10 py-12">
+              <form className="space-y-6" onSubmit={onSubmit}>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-semibold text-slate-900">Sign In</h3>
+                  <p className="text-sm text-slate-600">Enter your credentials to access your account.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-800">Username or Email</label>
+                    <Input
+                      placeholder="Enter your username or email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-800">Password</label>
+                    <Input
+                      placeholder="Enter your password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <a className="text-xs font-semibold text-[#0A77C8]" href="#">
+                      Forgot Password?
+                    </a>
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full bg-[#0F304A] text-white hover:bg-[#0F304A]/90">
+                  Login
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  <Separator />
+                  <span className="text-xs text-slate-500">or</span>
+                  <Separator />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
+                >
+                  Login with UNDIP SSO
+                </Button>
+              </form>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
 }
-// export default function Home() {
-  
-//   useEffect(() => {
-
-//     async function call() {
-//       const resp = await client.public["sign-in"].post({
-//         username: "superadmin@fsm.internal",
-//         password: "password1234"
-//       });
-
-//       console.log(resp)
-//     }
-
-//     call();
-//   })
-
-
-//   return (
-//     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-//       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-//         <Image
-//           className="dark:invert"
-//           src="/next.svg"
-//           alt="Next.js logo"
-//           width={100}
-//           height={20}
-//           priority
-//         />
-//         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-//           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-//             To get started, edit the page.tsx file.
-//           </h1>
-//           <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-//             Looking for a starting point or more instructions? Head over to{" "}
-//             <a
-//               href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//               className="font-medium text-zinc-950 dark:text-zinc-50"
-//             >
-//               Templates
-//             </a>{" "}
-//             or the{" "}
-//             <a
-//               href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//               className="font-medium text-zinc-950 dark:text-zinc-50"
-//             >
-//               Learning
-//             </a>{" "}
-//             center.
-//           </p>
-//         </div>
-//         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-//           <a
-//             className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-//             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             <Image
-//               className="dark:invert"
-//               src="/vercel.svg"
-//               alt="Vercel logomark"
-//               width={16}
-//               height={16}
-//             />
-//             Deploy Now
-//           </a>
-//           <a
-//             className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-//             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             Documentation
-//           </a>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
