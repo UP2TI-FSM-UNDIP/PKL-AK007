@@ -99,7 +99,7 @@ export default function IdentitasPemohonPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/identitas-pemohon">Form Pengajuan Surat</BreadcrumbLink>
+              <BreadcrumbLink href="/mahasiswa/identitas-pemohon">Form Pengajuan Surat</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
               <span className="text-slate-400">/</span>
@@ -116,7 +116,7 @@ export default function IdentitasPemohonPage() {
           title="Identitas Pemohon"
           description="Data berikut diisi secara otomatis berdasarkan data Anda. Mohon periksa kembali dan lengkapi data yang diperlukan."
           breadcrumbItems={[
-            { label: "Form Pengajuan Surat", href: "/identitas-pemohon" },
+            { label: "Form Pengajuan Surat", href: "/mahasiswa/identitas-pemohon" },
             { label: "Identitas Pemohon" },
           ]}
         />
@@ -331,7 +331,7 @@ export default function IdentitasPemohonPage() {
                   : "cursor-not-allowed bg-slate-300 text-slate-500 hover:bg-slate-400"
               )}
             >
-              <Link href="/detail-pengajuan">Lanjut</Link>
+              <Link href="/mahasiswa/detail-pengajuan">Lanjut</Link>
             </Button>
           </div>
         </div>

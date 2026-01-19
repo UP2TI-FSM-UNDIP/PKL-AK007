@@ -41,7 +41,7 @@ export default function ReviewAjukanPage() {
           title="Review Surat"
           description="Mohon periksa kembali seluruh data yang telah Anda masukkan sebelum mengajukan surat."
           breadcrumbItems={[
-            { label: "Form Pengajuan Surat", href: "/identitas-pemohon" },
+            { label: "Form Pengajuan Surat", href: "/mahasiswa/identitas-pemohon" },
             { label: "Review & Ajukan" },
           ]}
         />
@@ -105,7 +105,7 @@ export default function ReviewAjukanPage() {
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 gap-3">
             <Link
-              href="/lampiran"
+              href="/mahasiswa/lampiran"
               className="rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
             >
               Kembali

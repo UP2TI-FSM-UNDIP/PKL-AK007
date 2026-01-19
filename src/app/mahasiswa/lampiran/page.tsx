@@ -17,7 +17,7 @@ const steps = [
 ];
 
 const breadcrumbItems = [
-  { label: "Form Pengajuan Surat", href: "/identitas-pemohon" },
+  { label: "Form Pengajuan Surat", href: "/mahasiswa/identitas-pemohon" },
   { label: "Lampiran" }
 ];
 
@@ -207,7 +207,7 @@ export default function LampiranPage() {
 
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
-            href="/detail-pengajuan"
+            href="/mahasiswa/detail-pengajuan"
             className="rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
           >
             Kembali
@@ -224,7 +224,7 @@ export default function LampiranPage() {
               Simpan Draft
             </button>
             <Link
-              href="/review-ajukan"
+              href="/mahasiswa/review-ajukan"
               className="rounded-full bg-[#0A77C8] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#085ea0]"
               onClick={(e) => {
                 if (mainAttachments.length === 0) {

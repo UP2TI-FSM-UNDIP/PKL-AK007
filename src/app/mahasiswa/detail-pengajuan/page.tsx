@@ -49,7 +49,7 @@ export default function DetailPengajuanPage() {
           title="Detail Pengajuan"
           description="Lengkapi detail utama dari surat yang akan diajukan."
           breadcrumbItems={[
-            { label: "Form Pengajuan Surat", href: "/identitas-pemohon" },
+            { label: "Form Pengajuan Surat", href: "/mahasiswa/identitas-pemohon" },
             { label: "Detail Pengajuan" },
           ]}
         />
@@ -107,7 +107,7 @@ export default function DetailPengajuanPage() {
 
         <div className="mt-8 flex justify-between">
           <Button variant="outline" asChild>
-            <Link href="/identitas-pemohon">Kembali</Link>
+            <Link href="/mahasiswa/identitas-pemohon">Kembali</Link>
           </Button>
 
           <div className="flex gap-4">
@@ -124,14 +124,14 @@ export default function DetailPengajuanPage() {
               className={
                 form.formState.isValid
                   ? "bg-[#0078C9] text-white hover:bg-[#0078C9]/90"
-                  : "cursor-not-allowed bg-slate-300 text-slate-500"
-              }
-              asChild
-            >
-              <Link href="/lampiran">Lanjut</Link>
-            </Button>
-          </div>
+              : "cursor-not-allowed bg-slate-300 text-slate-500"
+            }
+            asChild
+          >
+            <Link href="/mahasiswa/lampiran">Lanjut</Link>
+          </Button>
         </div>
+      </div>
       </main>
     </div>
   );
