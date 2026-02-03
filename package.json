@@ -5,7 +5,8 @@
     "type": "module",
     "private": true,
     "devDependencies": {
-        "@types/bun": "^1.1.6"
+        "@types/bun": "^1.1.6",
+        "prisma": "^7.2.0"
     },
     "peerDependencies": {
         "typescript": "^5.5.3"
@@ -13,5 +14,8 @@
     "workspaces": [
         "e-office-api-v2",
         "e-office-webapp-v2"
-    ]
+    ],
+    "dependencies": {
+        "@prisma/client": "^7.2.0"
+    }
 }
