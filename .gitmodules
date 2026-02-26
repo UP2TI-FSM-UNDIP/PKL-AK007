@@ -1,6 +1,0 @@
-[submodule "e-office-api-v2"]
-	path = e-office-api-v2
-	url = https://github.com/aisyyaaa/e-office-api-v2.git
-[submodule "e-office-webapp-v2"]
-	path = e-office-webapp-v2
-	url = https://github.com/aisyyaaa/e-office-webapp-v2.git
