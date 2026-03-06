@@ -37,6 +37,7 @@ type Draft = {
 
 export default function DraftSuratPage() {
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
@@ -97,9 +98,9 @@ export default function DraftSuratPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar active="draft-surat" />
+        {sidebarOpen ? <StudentSidebar active="draft-surat" /> : null}
         <div className="relative flex-1">
           <main className="mx-auto flex w-full max-w-7xl flex-1 gap-6 px-6 py-8 pb-20">
             <div className="flex-1 space-y-3">

@@ -1,33 +1,57 @@
-interface BarProps {
+type StatusItem = {
   label: string;
   value: number;
   color: string;
-}
+};
 
-export default function StatusChart() {
+type StatusChartProps = {
+  title?: string;
+  items?: StatusItem[];
+};
+
+export default function StatusChart({ title = "Distribusi Status", items }: StatusChartProps) {
+  const chartItems = items ?? [];
+  const maxValue = chartItems.length ? Math.max(1, ...chartItems.map((item) => item.value)) : 1;
+
   return (
     <div className="bg-white rounded-lg p-5 shadow-sm">
       <h3 className="font-semibold mb-4">
-        Distribusi Status
+        {title}
       </h3>
 
-      <div className="flex items-end gap-3 h-40">
-        <Bar label="Baru" value={10} color="bg-gray-400" />
-        <Bar label="Proses" value={20} color="bg-yellow-400" />
-        <Bar label="Disposisi" value={8} color="bg-blue-400" />
-        <Bar label="Selesai" value={40} color="bg-green-500" />
-        <Bar label="Ditolak" value={2} color="bg-red-400" />
-      </div>
+      {chartItems.length ? (
+        <div className="flex items-end gap-3 h-40">
+          {chartItems.map((item) => (
+            <Bar
+              key={item.label}
+              label={item.label}
+              value={item.value}
+              color={item.color}
+              maxValue={maxValue}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="h-40 flex items-center justify-center text-gray-400">
+          Tidak ada data
+        </div>
+      )}
     </div>
   );
 }
 
-function Bar({ label, value, color }: BarProps) {
+function Bar({
+  label,
+  value,
+  color,
+  maxValue,
+}: StatusItem & { maxValue: number }) {
+  const height = Math.max(6, (value / maxValue) * 100);
   return (
     <div className="flex flex-col items-center text-xs">
       <div
         className={`${color} w-10 rounded-t transition-all`}
-        style={{ height: `${value * 2}px` }}
+        style={{ height: `${height}%` }}
       />
       <span className="mt-2 text-gray-500">
         {label}

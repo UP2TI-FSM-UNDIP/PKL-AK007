@@ -7,7 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Navbar } from "@/components/Navbar";
+import { StudentNavbar } from "@/components/student/StudentNavbar";
 import { PageHeader } from "@/components/PageHeader";
 import { FormStepper } from "@/components/FormStepper";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export default function DetailPengajuanPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const [, setSidebarOpen] = React.useState(false);
   const isResubmit = searchParams.get("resubmit") === "1";
   const isSavingRef = React.useRef(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -169,7 +170,7 @@ export default function DetailPengajuanPage() {
 
   return (
     <div className="min-h-screen bg-[#F3F3F3]">
-      <Navbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
 
       <main className="container mx-auto max-w-5xl px-4 py-8">
         <PageHeader

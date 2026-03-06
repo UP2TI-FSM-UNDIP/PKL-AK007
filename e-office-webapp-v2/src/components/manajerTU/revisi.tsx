@@ -13,7 +13,7 @@ export default function RevisiModal({
   onClose,
   onSubmit,
 }: RevisiModalProps) {
-  const [target, setTarget] = useState("Asd (MTU)");
+  const [target, setTarget] = useState("Mahasiswa");
   const [note, setNote] = useState("");
 
   if (!open) return null;
@@ -51,8 +51,6 @@ export default function RevisiModal({
             onChange={(e) => setTarget(e.target.value)}
             className="w-full border rounded px-3 py-2 text-sm"
           >
-            <option>Asd (MTU)</option>
-            <option>Admin Surat</option>
             <option>Supervisor Akademik</option>
             <option>Mahasiswa</option>
           </select>

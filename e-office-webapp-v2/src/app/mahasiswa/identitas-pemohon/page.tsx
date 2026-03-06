@@ -10,7 +10,7 @@ import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FormStepper } from "@/components/FormStepper";
-import { Navbar } from "@/components/Navbar";
+import { StudentNavbar } from "@/components/student/StudentNavbar";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -63,32 +63,40 @@ const formSchema = z.object({
     .max(new Date(), {
       message: "Tanggal lahir tidak valid",
     }),
-  noHp: z.string().regex(/^08\d{8,}$/, {
-    message: "Format nomor HP tidak valid (awalan 08, min 10 digit)",
+  noHp: z.string().regex(/^\+62\d{9,12}$/, {
+    message: "Format nomor HP tidak valid (awalan +62, 9-12 digit)",
   }),
   alamat: z.string().min(1, { message: "Alamat harus diisi." }),
 });
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+const formatRoleName = (role?: string) => {
+  if (!role) return "";
+  return role
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
 
 export default function IdentitasPemohonPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const [, setSidebarOpen] = React.useState(false);
   const isResubmit = searchParams.get("resubmit") === "1";
   const isSavingRef = React.useRef(false);
+  const profileLoadedRef = React.useRef(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
-      namaLengkap: "Ahmad Douglas",
-      role: "Mahasiswa",
-      nim: "24060121130089",
-      email: "ahmaddouglas@students.undip.ac.id",
-      departemen: "Informatika",
-      programStudi: "S1 - Informatika",
-      tempatLahir: "Blora",
-      tanggalLahir: new Date("2006-03-18"),
+      namaLengkap: "",
+      role: "",
+      nim: "",
+      email: "",
+      departemen: "",
+      programStudi: "",
+      tempatLahir: "",
+      tanggalLahir: undefined,
       noHp: "",
       alamat: "",
     },
@@ -135,6 +143,61 @@ export default function IdentitasPemohonPage() {
     params.set("letterId", stored);
     router.replace(`${pathname}?${params.toString()}`);
   }, [pathname, router, searchParams]);
+
+  React.useEffect(() => {
+    const draftId = searchParams.get("draftId");
+    const letterId = searchParams.get("letterId");
+    if (draftId || letterId || profileLoadedRef.current) {
+      return;
+    }
+    const loadProfile = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/profile`, {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          return;
+        }
+        const profile = (await response.json()) as {
+          name?: string;
+          email?: string;
+          mahasiswa?: {
+            nim?: string;
+            noHp?: string;
+            alamat?: string;
+            tempatLahir?: string;
+            tanggalLahir?: string;
+            departemen?: { name?: string };
+            programStudi?: { name?: string };
+          };
+          userRole?: { role?: { name?: string } }[];
+        };
+        const mahasiswa = profile.mahasiswa;
+        if (form.formState.isDirty) {
+          return;
+        }
+        const roleName = formatRoleName(profile.userRole?.[0]?.role?.name);
+        form.reset({
+          ...form.getValues(),
+          namaLengkap: profile.name ?? "",
+          role: roleName,
+          nim: mahasiswa?.nim ?? "",
+          email: profile.email ?? "",
+          departemen: mahasiswa?.departemen?.name ?? "",
+          programStudi: mahasiswa?.programStudi?.name ?? "",
+          tempatLahir: mahasiswa?.tempatLahir ?? "",
+          tanggalLahir: mahasiswa?.tanggalLahir ? new Date(mahasiswa.tanggalLahir) : undefined,
+          noHp: mahasiswa?.noHp ?? "",
+          alamat: mahasiswa?.alamat ?? "",
+        });
+        profileLoadedRef.current = true;
+      } catch (error) {
+        console.warn("Failed to load profile data", error);
+      }
+    };
+
+    loadProfile();
+  }, [form, searchParams]);
 
   React.useEffect(() => {
     const draftId = searchParams.get("draftId");
@@ -289,7 +352,7 @@ export default function IdentitasPemohonPage() {
 
   return (
     <div className="min-h-screen bg-[#F3F3F3]">
-      <Navbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
 
       <div className="w-full px-6 py-4">
         <Breadcrumb>

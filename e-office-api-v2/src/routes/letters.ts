@@ -115,7 +115,17 @@ export default new Elysia()
 				where,
 				include: {
 					letterType: true,
-					createdBy: true,
+					createdBy: {
+						include: {
+							mahasiswa: true,
+							pegawai: true,
+							userRole: {
+								include: {
+									role: true,
+								},
+							},
+						},
+					},
 				},
 			});
 

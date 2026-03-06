@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Navbar } from "@/components/Navbar";
+import { StudentNavbar } from "@/components/student/StudentNavbar";
 import { PageHeader } from "@/components/PageHeader";
 import { FormStepper } from "@/components/FormStepper";
 
@@ -14,17 +14,6 @@ const steps = [
   { label: "Detail Pengajuan" },
   { label: "Lampiran" },
   { label: "Review & Ajukan" },
-];
-
-const attachments = [
-  {
-    title: "KTM - KTM_24060121120001.pdf",
-    previewAlt: "Preview KTM",
-  },
-  {
-    title: "Transkrip - Transkrip_Nilai_Semester_6.pdf",
-    previewAlt: "Preview Transkrip",
-  },
 ];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -41,6 +30,18 @@ type DraftData = {
   alamat?: string;
   jenisSurat?: string;
   keperluan?: string;
+  attachments?: AttachmentItem[];
+};
+
+type AttachmentItem = {
+  id: string;
+  name: string;
+  url: string;
+  type?: string;
+  typeLabel?: string;
+  isMain?: boolean;
+  size?: string;
+  fileSize?: number;
 };
 
 const formatValue = (value?: string) => (value && value.trim().length > 0 ? value : "-");
@@ -49,6 +50,7 @@ export default function ReviewAjukanPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [draft, setDraft] = useState<DraftData | null>(null);
   const [originalLetter, setOriginalLetter] = useState<DraftData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -136,6 +138,16 @@ export default function ReviewAjukanPage() {
   }, [isResubmit, letterId]);
 
   const normalize = (value?: string) => (value ?? "").trim();
+  const normalizeAttachments = (items?: AttachmentItem[]) => {
+    const normalized = (items ?? []).map((item) => ({
+      name: item.name ?? "",
+      url: item.url ?? "",
+      type: item.type ?? "",
+      typeLabel: item.typeLabel ?? "",
+      isMain: Boolean(item.isMain),
+    }));
+    return normalized.sort((a, b) => `${a.name}${a.url}`.localeCompare(`${b.name}${b.url}`));
+  };
   const hasChanges = (() => {
     if (!isRevision && !isResubmit) return true;
     if (!draft || !originalLetter) return false;
@@ -152,7 +164,11 @@ export default function ReviewAjukanPage() {
       "jenisSurat",
       "keperluan",
     ];
-    return keys.some((key) => normalize(draft[key]) !== normalize(originalLetter[key]));
+    const fieldChanged = keys.some((key) => normalize(draft[key]) !== normalize(originalLetter[key]));
+    if (fieldChanged) return true;
+    const draftAttachments = normalizeAttachments(draft.attachments);
+    const originalAttachments = normalizeAttachments(originalLetter.attachments);
+    return JSON.stringify(draftAttachments) !== JSON.stringify(originalAttachments);
   })();
   const queryParts = [
     ...(isRevision ? ["revision=1"] : []),
@@ -275,9 +291,49 @@ export default function ReviewAjukanPage() {
     }
   };
 
+  const attachments = draft?.attachments ?? [];
+
+  const renderAttachmentPreview = (attachment: AttachmentItem) => {
+    const url = attachment.url;
+    if (!url) {
+      return (
+        <div className="flex h-64 items-center justify-center bg-gray-100 text-sm text-gray-500 sm:h-96">
+          Preview tidak tersedia
+        </div>
+      );
+    }
+
+    const isImage = attachment.type?.includes("image") || /\.(png|jpe?g)$/i.test(url);
+    const isPdf = attachment.type?.includes("pdf") || /\.pdf$/i.test(url);
+
+    if (isImage) {
+      return (
+        <div className="flex h-64 items-center justify-center bg-gray-100 sm:h-96">
+          <img src={url} alt={attachment.name} className="max-h-full max-w-full object-contain" />
+        </div>
+      );
+    }
+
+    if (isPdf) {
+      return (
+        <div className="h-64 bg-gray-100 sm:h-96">
+          <iframe title={attachment.name} src={url} className="h-full w-full" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex h-64 items-center justify-center bg-gray-100 text-sm text-gray-500 sm:h-96">
+        <a href={url} target="_blank" rel="noreferrer" className="text-[#0A77C8] underline">
+          Buka lampiran
+        </a>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#F3F3F3]">
-      <Navbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
 
       <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 sm:px-6">
         <PageHeader
@@ -328,21 +384,23 @@ export default function ReviewAjukanPage() {
         </div>
 
         <Card title="Lampiran">
-          <div className="space-y-6">
-            {attachments.map((file) => (
-              <div key={file.title} className="space-y-2">
-                <div className="flex items-center justify-between text-sm font-semibold text-gray-900">
-                  <span>{file.title}</span>
-                  <ChevronDown size={16} className="text-gray-500" />
-                </div>
-                <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                  <div className="flex h-64 items-center justify-center bg-gray-100 text-sm text-gray-500 sm:h-96">
-                    {file.previewAlt} (placeholder)
+          {attachments.length === 0 ? (
+            <div className="text-sm text-gray-500">Belum ada lampiran.</div>
+          ) : (
+            <div className="space-y-6">
+              {attachments.map((file) => (
+                <div key={file.id} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm font-semibold text-gray-900">
+                    <span>{file.name}</span>
+                    <ChevronDown size={16} className="text-gray-500" />
+                  </div>
+                  <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                    {renderAttachmentPreview(file)}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </Card>
 
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

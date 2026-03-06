@@ -78,8 +78,10 @@ export const authGuardPlugin = new Elysia({
 					}
 
 					const roles = await getUserRoles(user.id);
+					const normalizedRoles = roles.map((role) => role.toLowerCase());
+					const normalizedRequired = requiredRole.toLowerCase();
 
-					if (!roles.includes(requiredRole)) {
+					if (!normalizedRoles.includes(normalizedRequired)) {
 						return status(403, {
 							error: "Forbidden",
 							message: `Role '${requiredRole}' required`,

@@ -114,6 +114,7 @@ export default new Elysia()
 
 			return logs.map((log) => ({
 				id: log.id,
+				status: log.status,
 				action: getActivityAction({
 					status: log.status,
 					actorId: log.actorId,
@@ -124,6 +125,7 @@ export default new Elysia()
 				detail: log.letterInstance?.letterType?.name ?? "-",
 				note: log.note ?? "",
 				createdAt: log.createdAt,
+				letterId: log.letterInstanceId,
 			}));
 		},
 		{

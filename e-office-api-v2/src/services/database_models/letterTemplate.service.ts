@@ -55,6 +55,19 @@ const LetterSchemaV1 = z
 	})
 	.passthrough();
 
+const TemplateBlockSchema = z
+	.object({
+		type: z.enum(["text", "field", "signature"]),
+	})
+	.passthrough();
+
+const BlocksSchema = z.array(TemplateBlockSchema);
+const BlocksWrapperSchema = z
+	.object({
+		blocks: BlocksSchema,
+	})
+	.passthrough();
+
 export abstract class LetterTemplateService extends CRUD<
 	LetterTemplate,
 	LetterTemplateDelegate,
@@ -62,7 +75,7 @@ export abstract class LetterTemplateService extends CRUD<
 >(Prisma.letterTemplate) {
 	// biome-ignore lint/suspicious/noExplicitAny: this is for validation purpose, so this is intended
 	public static async validateSchemaV1(_schema: any) {
-		const safe = LetterSchemaV1.parse(_schema);
+		const safe = z.union([LetterSchemaV1, BlocksSchema, BlocksWrapperSchema]).parse(_schema);
 
 		return safe;
 	}

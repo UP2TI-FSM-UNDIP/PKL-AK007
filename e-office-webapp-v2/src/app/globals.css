@@ -123,3 +123,64 @@
     @apply bg-background text-foreground;
   }
 }
+
+.dark .bg-\[\#F5F7FA\],
+.dark .bg-\[\#f5f6f8\] {
+  background-color: var(--background) !important;
+}
+
+.dark .bg-\[\#F1F1F1\] {
+  background-color: color-mix(in oklab, var(--card) 85%, black) !important;
+}
+
+.dark .bg-white {
+  background-color: var(--card) !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: var(--foreground) !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500 {
+  color: var(--muted-foreground) !important;
+}
+
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  color: var(--foreground) !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: var(--muted-foreground) !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: var(--border) !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-100 {
+  border-color: var(--border) !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: color-mix(in oklab, var(--card) 85%, black) !important;
+}
+
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: color-mix(in oklab, var(--card) 85%, black) !important;
+}
+
+.dark .shadow,
+.dark .shadow-sm,
+.dark .shadow-lg {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}

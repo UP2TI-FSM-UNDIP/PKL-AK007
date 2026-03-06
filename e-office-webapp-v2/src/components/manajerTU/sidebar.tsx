@@ -1,25 +1,63 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Mail,
-  Users,
-  FileSignature,
-  Eye,
   User,
   ChevronDown,
   ChevronRight,
   FolderInput,
+  Layers,
+  LogOut,
 } from "lucide-react";
+import { useUiPreferences } from "@/components/common/useUiPreferences";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+type ProfileData = {
+  name?: string;
+  email?: string;
+};
 
 export function ManajerSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [openSuratMasuk, setOpenSuratMasuk] = useState(true);
+  const router = useRouter();
+  const { t } = useUiPreferences();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
 
   const isActive = (path: string) => pathname === path;
+  const isAllSurat = searchParams.get("scope") === "all";
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/profile`, {
+          credentials: "include",
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as ProfileData;
+        setProfile(data);
+      } catch (error) {
+        console.warn("Failed to load profile", error);
+      }
+    };
+    loadProfile();
+  }, []);
+
+  const initials = useMemo(() => {
+    const name = profile?.name ?? "Manajer TU";
+    const parts = name.trim().split(" ");
+    return parts
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "TU";
+  }, [profile?.name]);
 
   return (
     <aside
@@ -33,9 +71,11 @@ export function ManajerSidebar() {
         border-r
         shadow-sm
         z-40
+        flex
+        flex-col
       "
     >
-      <nav className="p-4 space-y-1 text-sm text-gray-700">
+      <nav className="flex-1 p-4 space-y-1 text-sm text-gray-700">
         {/* Dashboard */}
         <Link
           href="/manajerTU/dashboard"
@@ -46,7 +86,7 @@ export function ManajerSidebar() {
           }`}
         >
           <Home className="w-5 h-5" />
-          Dashboard
+          {t("dashboard")}
         </Link>
 
         {/* Surat Masuk (Dropdown) */}
@@ -56,7 +96,7 @@ export function ManajerSidebar() {
         >
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5" />
-            Surat Masuk
+            {t("suratMasuk")}
           </div>
           {openSuratMasuk ? (
             <ChevronDown className="w-4 h-4" />
@@ -70,53 +110,27 @@ export function ManajerSidebar() {
             <Link
               href="/manajerTU/penerima"
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
-                isActive("/manajerTU/penerima")
+                isActive("/manajerTU/penerima") && !isAllSurat
                   ? "bg-blue-100 text-blue-600 font-medium"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
               <FolderInput className="w-4 h-4" />
-              Penerima
+              {t("penerimaTitle")}
+            </Link>
+            <Link
+              href="/manajerTU/penerima?scope=all"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
+                isActive("/manajerTU/penerima") && isAllSurat
+                  ? "bg-blue-100 text-blue-600 font-medium"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              {t("semuaSurat")}
             </Link>
           </div>
         )}
-
-        {/* Other menu */}
-        <Link
-          href="/manajerTU/beri-ttd"
-          className={`flex items-center gap-3 px-3 py-3 rounded-lg transition ${
-            isActive("/manajerTU/beri-ttd")
-              ? "bg-blue-100 text-blue-600 font-semibold"
-              : "hover:bg-blue-50 hover:text-blue-600"
-          }`}
-        >
-          <FileSignature className="w-5 h-5" />
-          Penandatanganan
-        </Link>
-
-        <Link
-          href="/manajerTU/identitas-pemohon"
-          className={`flex items-center gap-3 px-3 py-3 rounded-lg transition ${
-            isActive("/manajerTU/identitas-pemohon")
-              ? "bg-blue-100 text-blue-600 font-semibold"
-              : "hover:bg-blue-50 hover:text-blue-600"
-          }`}
-        >
-          <Users className="w-5 h-5" />
-          Identitas Pemohon
-        </Link>
-
-        <Link
-          href="/manajerTU/pratinjau-surat"
-          className={`flex items-center gap-3 px-3 py-3 rounded-lg transition ${
-            isActive("/manajerTU/pratinjau-surat")
-              ? "bg-blue-100 text-blue-600 font-semibold"
-              : "hover:bg-blue-50 hover:text-blue-600"
-          }`}
-        >
-          <Eye className="w-5 h-5" />
-          Pratinjau Surat
-        </Link>
 
         <Link
           href="/manajerTU/profil-saya"
@@ -127,9 +141,34 @@ export function ManajerSidebar() {
           }`}
         >
           <User className="w-5 h-5" />
-          Profil Saya
+          {t("profileTitle")}
         </Link>
       </nav>
+
+      <div className="border-t px-4 py-4">
+        <div className="flex items-center gap-3 px-2 py-2">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-medium">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-700 truncate">{profile?.name ?? "Manajer TU"}</p>
+            <p className="text-xs text-gray-500 truncate">{profile?.email ?? "manajer.tu@ak007.test"}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+          onClick={() => {
+            const confirmed = window.confirm(t("logoutConfirm"));
+            if (confirmed) {
+              router.push("/");
+            }
+          }}
+        >
+          <LogOut className="h-4 w-4" />
+          {t("logout")}
+        </button>
+      </div>
     </aside>
   );
 }

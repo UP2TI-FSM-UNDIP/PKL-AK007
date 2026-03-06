@@ -43,6 +43,7 @@ const statusStyle: Record<LetterRow["status"], { dot: string; text: string }> = 
 };
 
 export default function SuratSayaPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [letters, setLetters] = useState<LetterRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -103,9 +104,9 @@ export default function SuratSayaPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar active="surat-saya" />
+        {sidebarOpen ? <StudentSidebar active="surat-saya" /> : null}
 
         <main className="mx-auto flex max-w-6xl flex-1 flex-col gap-6 px-6 py-8">
           <div className="flex items-center justify-between gap-4">
@@ -113,9 +114,6 @@ export default function SuratSayaPage() {
               <p className="text-xs text-slate-500">Surat Saya</p>
               <h1 className="text-2xl font-bold text-slate-900">Surat Keterangan Mahasiswa</h1>
             </div>
-            <Button className="bg-[#0A77C8] hover:bg-[#085ea0]" asChild>
-              <Link href="/mahasiswa/student-letter-management">Ajukan Surat</Link>
-            </Button>
           </div>
 
           <Card className="border border-slate-200 bg-white p-4 shadow-sm">
@@ -137,11 +135,11 @@ export default function SuratSayaPage() {
             <div className="mt-4 grid gap-3 md:grid-cols-4">
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-600">Rentang Tanggal</label>
-                <Input type="date" className="w-full" defaultValue="2023-08-05" />
+                <Input type="date" className="w-full" />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-600">Tanggal Selesai</label>
-                <Input type="date" className="w-full" defaultValue="2023-08-25" />
+                <Input type="date" className="w-full" />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-600">Status</label>
@@ -187,7 +185,9 @@ export default function SuratSayaPage() {
                     <span className="text-slate-600">{letter.tanggalDiajukan}</span>
                     <span className="text-slate-700">{letter.tujuan}</span>
                     <div className="flex items-center gap-2">
-                      <span className={`h-2 w-2 rounded-full ${statusStyle[letter.status].dot}`} />
+                      <span
+                        className={`inline-block h-2 w-2 shrink-0 rounded-full ${statusStyle[letter.status].dot}`}
+                      />
                       <span className={`text-xs font-semibold ${statusStyle[letter.status].text}`}>{letter.status}</span>
                     </div>
                     <div className="flex justify-end">

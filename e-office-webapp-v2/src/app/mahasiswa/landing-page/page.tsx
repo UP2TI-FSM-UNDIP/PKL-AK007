@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,11 +61,12 @@ const apps: AppTile[] = [
 ];
 
 export default function LandingPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar active="dashboard" />
+        {sidebarOpen ? <StudentSidebar active="dashboard" /> : null}
         <main className="mx-auto max-w-6xl flex-1 px-6 py-10">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-slate-900">Application Catalogue</h1>

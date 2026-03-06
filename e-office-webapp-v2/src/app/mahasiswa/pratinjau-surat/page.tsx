@@ -26,6 +26,7 @@ type DraftData = {
 
 export default function MahasiswaPreviewPage() {
   const searchParams = useSearchParams();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [zoom, setZoom] = useState(100);
   const [draft, setDraft] = useState<DraftData | null>(null);
   const [letterValues, setLetterValues] = useState<DraftData | null>(null);
@@ -91,9 +92,9 @@ export default function MahasiswaPreviewPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar active="surat-saya" />
+        {sidebarOpen ? <StudentSidebar active="surat-saya" /> : null}
         <main className="mx-auto flex max-w-6xl flex-1 flex-col gap-4 px-6 py-6">
           <div className="flex items-center justify-between">
             <div>

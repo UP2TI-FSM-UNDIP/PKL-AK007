@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 // UI Components - You need to import these from your actual paths
-import { Navbar } from "@/components/Navbar";
+import { StudentNavbar } from "@/components/student/StudentNavbar";
 import { PageHeader } from "@/components/PageHeader";
 import { FormStepper } from "@/components/FormStepper";
 
@@ -25,39 +25,23 @@ const breadcrumbItems = [
 type Attachment = {
   id: string;
   name: string;
+  url?: string;
   size: string;
   fileSize: number;
   type: string;
   typeLabel: string;
   badgeColor: string;
+  isMain?: boolean;
   file?: File;
 };
 
-const initialMainAttachments: Attachment[] = [
-  { 
-    id: "1", 
-    name: "KTM.pdf", 
-    size: "2.1 MB", 
-    fileSize: 2.1 * 1024 * 1024,
-    type: "pdf",
-    typeLabel: "KTM", 
-    badgeColor: "bg-red-100 text-red-600" 
-  },
-  { 
-    id: "2", 
-    name: "Foto.jpg", 
-    size: "850 KB", 
-    fileSize: 850 * 1024,
-    type: "image",
-    typeLabel: "Foto", 
-    badgeColor: "bg-blue-100 text-blue-600" 
-  },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export default function LampiranPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const [, setSidebarOpen] = useState(false);
   const draftId = searchParams.get("draftId");
   const isResubmit = searchParams.get("resubmit") === "1";
   const revision = searchParams.get("revision") === "1";
@@ -74,10 +58,33 @@ export default function LampiranPage() {
   const nextHref = draftId
     ? `/mahasiswa/review-ajukan?draftId=${draftId}${query ? `&${query.slice(1)}` : ""}`
     : `/mahasiswa/review-ajukan${query}`;
-  const [mainAttachments, setMainAttachments] = useState<Attachment[]>(initialMainAttachments);
+  const [mainAttachments, setMainAttachments] = useState<Attachment[]>([]);
   const [additionalAttachments, setAdditionalAttachments] = useState<Attachment[]>([]);
   const [dragOverMain, setDragOverMain] = useState(false);
   const [dragOverAdditional, setDragOverAdditional] = useState(false);
+  const isSavingRef = useRef(false);
+  const isUploadingRef = useRef(false);
+
+  useEffect(() => {
+    if (!draftId) return;
+    const loadDraft = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/drafts/${draftId}`, {
+          credentials: "include",
+        });
+        if (!response.ok) return;
+        const draft = (await response.json()) as {
+          data?: { attachments?: Attachment[] };
+        };
+        const savedAttachments = draft.data?.attachments ?? [];
+        setMainAttachments(savedAttachments.filter((item) => item.isMain));
+        setAdditionalAttachments(savedAttachments.filter((item) => !item.isMain));
+      } catch (error) {
+        console.warn("Failed to load draft attachments", error);
+      }
+    };
+    loadDraft();
+  }, [draftId]);
 
   useEffect(() => {
     const revisionParam = searchParams.get("revision");
@@ -119,16 +126,73 @@ export default function LampiranPage() {
     return { valid: true };
   };
 
-  const handleFileUpload = (files: FileList | null, isMain: boolean) => {
+  const uploadAttachment = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("jenis_file", "lampiran");
+    const response = await fetch(`${API_BASE}/minio/upload-file`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error("Upload failed");
+    }
+    const result = (await response.json()) as { url?: string };
+    return result.url ?? "";
+  };
+
+  const buildDraftAttachments = (
+    mainList: Attachment[],
+    additionalList: Attachment[],
+  ) => {
+    return [
+      ...mainList.map((item) => ({ ...item, isMain: true })),
+      ...additionalList.map((item) => ({ ...item, isMain: false })),
+    ];
+  };
+
+  const handleSaveDraft = async () => {
+    if (!draftId || isSavingRef.current) {
+      return;
+    }
+    isSavingRef.current = true;
+    const payloadAttachments = buildDraftAttachments(mainAttachments, additionalAttachments).map(
+      ({ id, name, url, type, typeLabel, isMain, size, fileSize }) => ({
+        id,
+        name,
+        url: url ?? "",
+        type,
+        typeLabel,
+        isMain,
+        size,
+        fileSize,
+      }),
+    );
+    try {
+      await fetch(`${API_BASE}/drafts/${draftId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: { attachments: payloadAttachments },
+        }),
+      });
+    } finally {
+      isSavingRef.current = false;
+    }
+  };
+
+  const handleFileUpload = async (files: FileList | null, isMain: boolean) => {
     if (!files) return;
 
     const newAttachments: Attachment[] = [];
-    
-    Array.from(files).forEach((file) => {
+
+    for (const file of Array.from(files)) {
       const validation = validateFile(file, isMain);
       if (!validation.valid) {
         alert(validation.message || 'File tidak valid');
-        return;
+        continue;
       }
 
       const fileType = file.type.includes('image') ? 'image' : 'pdf';
@@ -137,19 +201,29 @@ export default function LampiranPage() {
         ? 'bg-blue-100 text-blue-600' 
         : 'bg-red-100 text-red-600';
 
-      const newAttachment: Attachment = {
-        id: Date.now().toString() + Math.random(),
-        name: file.name,
-        size: formatFileSize(file.size),
-        fileSize: file.size,
-        type: fileType,
-        typeLabel,
-        badgeColor,
-        file
-      };
-
-      newAttachments.push(newAttachment);
-    });
+      try {
+        isUploadingRef.current = true;
+        const url = await uploadAttachment(file);
+        const newAttachment: Attachment = {
+          id: `${Date.now()}-${Math.random()}`,
+          name: file.name,
+          url,
+          size: formatFileSize(file.size),
+          fileSize: file.size,
+          type: fileType,
+          typeLabel,
+          badgeColor,
+          file,
+          isMain,
+        };
+        newAttachments.push(newAttachment);
+      } catch (error) {
+        console.warn("Upload failed", error);
+        alert("Gagal mengunggah lampiran.");
+      } finally {
+        isUploadingRef.current = false;
+      }
+    }
 
     if (isMain) {
       setMainAttachments(prev => [...prev, ...newAttachments]);
@@ -167,6 +241,10 @@ export default function LampiranPage() {
   };
 
   const handleViewAttachment = (attachment: Attachment) => {
+    if (attachment.url) {
+      window.open(attachment.url, '_blank');
+      return;
+    }
     if (attachment.file) {
       const url = URL.createObjectURL(attachment.file);
       window.open(url, '_blank');
@@ -203,9 +281,22 @@ export default function LampiranPage() {
     }
   };
 
+  useEffect(() => {
+    if (!draftId) {
+      return;
+    }
+    if (isUploadingRef.current) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      void handleSaveDraft();
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [draftId, mainAttachments, additionalAttachments]);
+
   return (
 	<div className="min-h-screen bg-[#F3F3F3]">
-      <Navbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       
       <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 sm:px-6">
         <PageHeader
@@ -245,31 +336,34 @@ export default function LampiranPage() {
         />
 
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            href={backHref}
+          <button
+            type="button"
             className="rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+            onClick={async () => {
+              await handleSaveDraft();
+              router.push(backHref);
+            }}
           >
             Kembali
-          </Link>
+          </button>
           <div className="flex items-center gap-3">
             <button
               type="button"
               className="rounded-full border border-[#0A77C8] px-5 py-2 text-sm font-semibold text-[#0A77C8] transition hover:bg-[#0A77C8]/10"
-              onClick={() => {
-                const totalAttachments = mainAttachments.length + additionalAttachments.length;
-                alert(`Draft disimpan dengan ${totalAttachments} lampiran`);
-              }}
+              onClick={handleSaveDraft}
             >
               Simpan Draft
             </button>
             <Link
               href={nextHref}
               className="rounded-full bg-[#0A77C8] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#085ea0]"
-              onClick={(e) => {
+              onClick={async (e) => {
                 if (mainAttachments.length === 0) {
                   e.preventDefault();
                   alert("Harap unggah minimal 1 lampiran utama");
+                  return;
                 }
+                await handleSaveDraft();
               }}
             >
               Lanjut
@@ -363,17 +457,19 @@ function AttachmentSection({
         <p className="text-xs text-gray-500">untuk diunggah</p>
       </div>
 
-      {hasItems && (
+      {hasItems ? (
         <div className="mt-4 space-y-3">
           {attachments.map((item) => (
-            <AttachmentRow 
-              key={item.id} 
-              attachment={item} 
+            <AttachmentRow
+              key={item.id}
+              attachment={item}
               onRemove={() => onRemoveAttachment(item.id)}
               onView={() => onViewAttachment(item)}
             />
           ))}
         </div>
+      ) : (
+        <div className="mt-4 text-sm text-gray-500">Belum ada lampiran.</div>
       )}
     </section>
   );

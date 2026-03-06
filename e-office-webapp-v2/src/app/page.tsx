@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -13,13 +14,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  const domainMap: Record<string, string> = {
-    "mahasiswa.com": "/mahasiswa/landing-page",
-    "spvak.com": "/supervisorAkademik",
-    "mantu.com": "/manajerTU",
-    "upa.com": "/UPA",
-  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,9 +39,7 @@ export default function LoginPage() {
     });
 
     if (!profileResponse.ok) {
-      const domain = (email.split("@")[1] || "").toLowerCase();
-      const dest = domainMap[domain] || "/mahasiswa/landing-page";
-      router.push(dest);
+      setError("Login berhasil, tapi gagal mengambil data role.");
       return;
     }
 
@@ -61,46 +53,42 @@ export default function LoginPage() {
       router.push("/supervisor/dashboard");
       return;
     }
-    if (roleName.includes("manajer")) {
-      router.push("/manajerTU");
+    if (roleName.includes("manajer") || roleName.includes("manager")) {
+      router.push("/manajerTU/dashboard");
       return;
     }
     if (roleName.includes("upa")) {
-      router.push("/UPA");
+      router.push("/UPA/dashboard");
+      return;
+    }
+    if (roleName.includes("superadmin")) {
+      router.push("/superadmin/dashboard");
       return;
     }
 
-    const domain = (email.split("@")[1] || "").toLowerCase();
-    const dest = domainMap[domain] || "/mahasiswa/landing-page";
-    router.push(dest);
+    router.push("/mahasiswa/landing-page");
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-[#F5F7FA] bg-[url('/gedung%20AP.png')] bg-cover bg-[center_60%] bg-no-repeat">
       <header className="flex h-14 items-center justify-between bg-[#0A77C8] px-6 text-white">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
-            FSM
-          </div>
-          <div className="leading-tight">
-            <p className="text-[11px] uppercase tracking-wide opacity-80">Fakultas</p>
-            <p className="text-sm font-semibold">Sains dan Matematika</p>
-            <p className="text-[11px] opacity-80">Universitas Diponegoro</p>
-          </div>
+          <Image
+            src="/logo-fsm.png"
+            alt="FSM UNDIP"
+            width={140}
+            height={40}
+            className="h-8 w-auto"
+            priority
+          />
         </div>
-        <div className="h-8 w-8 rounded-full bg-white/20" />
       </header>
 
       <main className="flex min-h-[calc(100vh-56px)] items-center justify-center px-4 py-10">
         <Card className="w-full max-w-5xl border-none shadow-lg">
           <CardContent className="grid gap-0 p-0 md:grid-cols-2">
             <div className="flex flex-col gap-4 rounded-l-2xl bg-white px-10 py-12">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0A77C8]/10 text-[#0A77C8]">
-                <span className="text-xl font-bold" aria-hidden>
-                  🔒
-                </span>
-              </div>
-              <div>
+              <div className="mt-6">
                 <h2 className="text-2xl font-bold text-slate-900">FSM UNDIP SSO</h2>
                 <p className="mt-2 text-sm text-slate-600">
                   Welcome to FSM UNDIP Application Portal. Please sign in to access your dashboard.

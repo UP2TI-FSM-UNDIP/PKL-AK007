@@ -1,4 +1,5 @@
 import { Bell, X } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -12,17 +13,12 @@ export function Navbar() {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-[#0078C9] text-white shadow-sm">
         <div className="flex h-16 items-center justify-between px-6 w-full">
-          <div className="flex items-center gap-2 font-bold text-lg">
+          <Link href="/mahasiswa/landing-page" className="flex items-center gap-2 font-bold text-lg">
             {/* Placeholder Logo */}
             <div className="h-8 w-8 rounded bg-white/20 flex items-center justify-center">
               <span className="text-xs">LOGO</span>
             </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-xs font-normal opacity-90">Fakultas</span>
-              <span>SAINS DAN MATEMATIKA</span>
-              <span className="text-[10px] font-normal opacity-80">UNIVERSITAS DIPONEGORO</span>
-            </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-6">
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white">
               <Bell className="h-5 w-5" />

@@ -8,23 +8,8 @@ async function main() {
 
 	// "pemohon"
 	// "supervisor akademik"
-	// "supervisor kemahasiswaan"
-	// "petugas tu"
-	// "dekan"
-	// "wakil dekan 1"
-	// "wakil dekan 2"
 	// "manajer tu"
-	// "petugas akademik"
 	// "upa"
-	// "supervisor sumberdaya"
-	// "prodi"
-	// "dosen pembimbing"
-	// "dosen koordinator"
-	// "ketua prodi"
-	// "admin departemen"
-	// "ketua departemen"
-	// "pegawai ukt"
-	// "supervisor sumberdaya"
 	// "superadmin"
 	// Roles
 	const superAdminRole = await Prisma.role.upsert({
@@ -57,56 +42,6 @@ async function main() {
 		},
 	});
 
-	const supervisorKemahasiswaanRole = await Prisma.role.upsert({
-		create: {
-			name: "supervisor_kemahasiswaan",
-		},
-		update: {},
-		where: {
-			name: "supervisor_kemahasiswaan",
-		},
-	});
-
-	const petugasTURole = await Prisma.role.upsert({
-		create: {
-			name: "petugas_tu",
-		},
-		update: {},
-		where: {
-			name: "petugas_tu",
-		},
-	});
-
-	const dekanRole = await Prisma.role.upsert({
-		create: {
-			name: "dekan",
-		},
-		update: {},
-		where: {
-			name: "dekan",
-		},
-	});
-
-	const wakilDekan1Role = await Prisma.role.upsert({
-		create: {
-			name: "wakil_dekan_1",
-		},
-		update: {},
-		where: {
-			name: "wakil_dekan_1",
-		},
-	});
-
-	const wakilDekan2Role = await Prisma.role.upsert({
-		create: {
-			name: "wakil_dekan_2",
-		},
-		update: {},
-		where: {
-			name: "wakil_dekan_2",
-		},
-	});
-
 	const managerTURole = await Prisma.role.upsert({
 		create: {
 			name: "manager_tu",
@@ -117,16 +52,6 @@ async function main() {
 		},
 	});
 
-	const petugasAkademikRole = await Prisma.role.upsert({
-		create: {
-			name: "petugas_akademik",
-		},
-		update: {},
-		where: {
-			name: "petugas_akademik",
-		},
-	});
-
 	const upaRole = await Prisma.role.upsert({
 		create: {
 			name: "upa",
@@ -134,86 +59,6 @@ async function main() {
 		update: {},
 		where: {
 			name: "upa",
-		},
-	});
-
-	const supervisorSumberdayaRole = await Prisma.role.upsert({
-		create: {
-			name: "supervisor_sumberdaya",
-		},
-		update: {},
-		where: {
-			name: "supervisor_sumberdaya",
-		},
-	});
-
-	const prodiRole = await Prisma.role.upsert({
-		create: {
-			name: "prodi",
-		},
-		update: {},
-		where: {
-			name: "prodi",
-		},
-	});
-
-	const dosenPembimbingRole = await Prisma.role.upsert({
-		create: {
-			name: "dosen_pembimbing",
-		},
-		update: {},
-		where: {
-			name: "dosen_pembimbing",
-		},
-	});
-
-	const dosenKoordinatorRole = await Prisma.role.upsert({
-		create: {
-			name: "dosen_koordinator",
-		},
-		update: {},
-		where: {
-			name: "dosen_koordinator",
-		},
-	});
-
-	const ketuaProdiRole = await Prisma.role.upsert({
-		create: {
-			name: "ketua_prodi",
-		},
-		update: {},
-		where: {
-			name: "ketua_prodi",
-		},
-	});
-
-	const adminDepartemenRole = await Prisma.role.upsert({
-		create: {
-			name: "admin_departemen",
-		},
-		update: {},
-		where: {
-			name: "admin_departemen",
-		},
-	});
-
-	const ketuaDepartemenRole = await Prisma.role.upsert({
-		create: {
-			name: "ketua_departemen",
-		},
-		update: {},
-		where: {
-			name: "ketua_departemen",
-		},
-	});
-
-	const pegawaiUktRole = await Prisma.role.upsert({
-		create: {
-			name: "pegawai_ukt",
-		},
-		update: {},
-		where: {
-			name: "pegawai_ukt",
 		},
 	});
 
@@ -593,21 +438,51 @@ async function main() {
 		},
 	});
 
-	// Create Account
+	const getOrCreateUser = async ({
+		email,
+		password,
+		name,
+	}: {
+		email: string;
+		password: string;
+		name: string;
+	}) => {
+		const existing = await Prisma.user.findUnique({ where: { email } });
+		if (existing) return existing;
+		const response = await auth.api.signUpEmail({
+			body: {
+				email,
+				password,
+				name,
+			},
+		});
+		return response.user;
+	};
 
-	const response = await auth.api.signUpEmail({
-		body: {
-			email: "superadmin@ak007.test",
-			password: "password123",
-			name: "Admin",
-		},
-	});
+	const seededUsers = [
+		{ name: "Superadmin", email: "superadmin@ak007.test", roleId: superAdminRole.id },
+		{ name: "Mahasiswa", email: "mahasiswa@ak007.test", roleId: mahasiswaRole.id },
+		{ name: "Supervisor Akademik", email: "supervisor.akademik@ak007.test", roleId: supervisorAkademikRole.id },
+		{ name: "Manajer TU", email: "manajer.tu@ak007.test", roleId: managerTURole.id },
+		{ name: "UPA", email: "upa@ak007.test", roleId: upaRole.id },
+	];
 
-	await Prisma.userRole.create({
-		data: {
-			userId: response.user.id,
-			roleId: superAdminRole.id,
-		},
+	const createdUsers = await Promise.all(
+		seededUsers.map((user) =>
+			getOrCreateUser({
+				email: user.email,
+				password: "password123",
+				name: user.name,
+			}),
+		),
+	);
+
+	await Prisma.userRole.createMany({
+		data: createdUsers.map((user, index) => ({
+			userId: user.id,
+			roleId: seededUsers[index].roleId,
+		})),
+		skipDuplicates: true,
 	});
 
 	console.log("Assigned roles to users");

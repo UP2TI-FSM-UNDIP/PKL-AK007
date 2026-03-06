@@ -1,25 +1,18 @@
-<<<<<<< HEAD
-import { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
-=======
->>>>>>> fb9ea7590093811c2202f03867ab476793c7afea
 interface StatCardProps {
   title: string;
   value: string | number;
   description: string;
-<<<<<<< HEAD
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   trend?: string;
   color?: "blue" | "green" | "orange" | "red";
-=======
->>>>>>> fb9ea7590093811c2202f03867ab476793c7afea
 }
 
 export default function StatCard({
   title,
   value,
   description,
-<<<<<<< HEAD
   icon,
   trend,
   color = "blue",
@@ -32,28 +25,28 @@ export default function StatCard({
   };
 
   return (
-    <div className={`border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer ${colorClasses[color]}`}>
+    <div className={`border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer ${colorClasses[color]} dark:border-slate-700/60 dark:bg-slate-900/70`}>
       <div className="flex justify-between items-start mb-4">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        {icon && <div className="p-2 rounded-lg bg-white shadow-sm">{icon}</div>}
+        <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{title}</p>
+        {icon && <div className="p-2 rounded-lg bg-white shadow-sm dark:bg-slate-800 dark:text-slate-200">{icon}</div>}
       </div>
 
       <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-800">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
             {typeof value === "number"
               ? value.toLocaleString("id-ID")
               : value}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">{description}</p>
+          <p className="text-sm text-gray-500 mt-1 dark:text-slate-400">{description}</p>
         </div>
         {trend && (
           <span className={`text-xs px-2 py-1 rounded-full ${
             trend.includes('+') 
-              ? 'bg-green-100 text-green-700' 
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200' 
               : trend.includes('-')
-              ? 'bg-red-100 text-red-700'
-              : 'bg-gray-100 text-gray-700'
+              ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200'
+              : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-200'
           }`}>
             {trend}
           </span>
@@ -62,20 +55,3 @@ export default function StatCard({
     </div>
   );
 }
-=======
-}: StatCardProps) {
-  return (
-    <div className="bg-white rounded-lg p-5 shadow-sm">
-      <p className="text-sm text-gray-500 mb-1">{title}</p>
-
-      <h2 className="text-2xl font-semibold">
-        {typeof value === "number"
-          ? value.toLocaleString("id-ID")
-          : value}
-      </h2>
-
-      <p className="text-xs text-gray-400 mt-1">{description}</p>
-    </div>
-  );
-}
->>>>>>> fb9ea7590093811c2202f03867ab476793c7afea

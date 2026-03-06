@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const geistSans = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const geistMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -23,10 +23,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f5f6f8] text-slate-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(() => {
+  try {
+    const theme = localStorage.getItem("ui-theme") === "dark" ? "dark" : "light";
+    const lang = localStorage.getItem("ui-lang") === "en" ? "en" : "id";
+    const root = document.documentElement;
+    root.classList.toggle("dark", theme === "dark");
+    root.dataset.theme = theme;
+    root.dataset.lang = lang;
+    root.lang = lang;
+  } catch (e) {}
+})();`,
+          }}
+        />
         {children}
       </body>
     </html>

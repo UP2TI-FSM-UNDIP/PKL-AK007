@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,11 +75,12 @@ const letters: LetterItem[] = [
 ];
 
 export default function StudentLetterManagementPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar active="ajukan" />
+        {sidebarOpen ? <StudentSidebar active="ajukan" /> : null}
         <main className="mx-auto flex max-w-6xl flex-1 flex-col gap-6 px-6 py-8">
           <div className="space-y-1">
             <p className="text-xs text-slate-500">Application Catalogue / Student Letter Management System</p>

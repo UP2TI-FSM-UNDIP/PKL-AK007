@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { StudentNavbar } from "@/components/student/StudentNavbar";
 import { SupervisorSidebar } from "@/components/supervisor/SupervisorSidebar";
-import { applicant } from "@/data/applicant";
+import { useUiPreferences } from "@/components/common/useUiPreferences";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -43,14 +42,12 @@ type LetterApi = {
   createdBy?: {
     name?: string | null;
     email?: string | null;
+    userRole?: { role?: { name?: string } }[];
+    mahasiswa?: {
+      tahunMasuk?: string | number | null;
+      angkatan?: string | number | null;
+    } | null;
   } | null;
-};
-
-const statusLabel: Record<HistoryApi["status"], string> = {
-  PENDING: "Surat diajukan ke Supervisor Akademik",
-  IN_PROGRESS: "Surat perlu revisi",
-  COMPLETED: "Surat diajukan ke Manajer TU",
-  REJECTED: "Surat ditolak oleh Supervisor",
 };
 
 const statusDot: Record<HistoryApi["status"], string> = {
@@ -67,24 +64,75 @@ const statusPill: Record<HistoryApi["status"], string> = {
   REJECTED: "bg-red-50 text-red-700",
 };
 
-const getStatusText = (status: HistoryApi["status"]) => statusLabel[status];
-
-const getRoleLabel = (status: HistoryApi["status"]) => {
-  if (status === "PENDING") {
-    return "Mahasiswa";
-  }
-  if (status === "IN_PROGRESS" || status === "COMPLETED" || status === "REJECTED") {
-    return "Supervisor Akademik";
-  }
-  return "Mahasiswa";
-};
-
 const readValue = (values: Record<string, unknown> | null | undefined, key: string) => {
   const value = values?.[key];
   return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 };
 
+const readValueFrom = (values: Record<string, unknown> | null | undefined, keys: string[]) => {
+  for (const key of keys) {
+    const value = readValue(values, key);
+    if (value) return value;
+  }
+  return undefined;
+};
+
+const formatRoleName = (role?: string) => {
+  if (!role) return "";
+  return role
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const getAcademicYearStart = (date: Date) => {
+  const month = date.getMonth() + 1;
+  return month <= 6 ? date.getFullYear() - 1 : date.getFullYear();
+};
+
+const parseEntryYear = (value?: string | number | null) => {
+  if (value === null || typeof value === "undefined") return null;
+  const trimmed = String(value).trim();
+  if (/^\d{4}$/.test(trimmed)) {
+    return Number(trimmed);
+  }
+  return null;
+};
+
+
+const getSemesterNumber = (entryYear: number | null, date: Date) => {
+  if (!entryYear) return null;
+  const currentYear = date.getFullYear();
+  const diffYears = currentYear - entryYear;
+  if (diffYears < 0) return null;
+  const month = date.getMonth() + 1;
+  const base = diffYears * 2;
+  const raw = month <= 6 ? base + 2 : base + 1;
+  if (raw < 1) return null;
+  return Math.min(raw, 14);
+};
+
+const spellNumberId = (value: number) => {
+  const mapping: Record<number, string> = {
+    1: "Satu",
+    2: "Dua",
+    3: "Tiga",
+    4: "Empat",
+    5: "Lima",
+    6: "Enam",
+    7: "Tujuh",
+    8: "Delapan",
+    9: "Sembilan",
+    10: "Sepuluh",
+    11: "Sebelas",
+    12: "Dua Belas",
+    13: "Tiga Belas",
+    14: "Empat Belas",
+  };
+  return mapping[value] ?? `${value}`;
+};
+
 export default function SupervisorDetailSurat() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const searchParams = useSearchParams();
   const [showReject, setShowReject] = useState(false);
   const [rejectNote, setRejectNote] = useState("");
@@ -94,6 +142,31 @@ export default function SupervisorDetailSurat() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [letter, setLetter] = useState<LetterApi | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useUiPreferences();
+
+  const getStatusText = (status: HistoryApi["status"]) => {
+    if (status === "PENDING") return t("pendingStatus");
+    if (status === "IN_PROGRESS") return t("revisionStatus");
+    if (status === "COMPLETED") return t("completedStatus");
+    return t("rejectedStatus");
+  };
+
+  const getRoleLabel = (status: HistoryApi["status"]) => {
+    if (status === "PENDING") {
+      return t("studentRole");
+    }
+    return t("supervisorRole");
+  };
+
+  const splitStatusText = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return [];
+    if (trimmed.length <= 20) return [trimmed];
+    const words = trimmed.split(/\s+/);
+    if (words.length <= 2) return [trimmed];
+    const mid = Math.ceil(words.length / 2);
+    return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+  };
 
   const loadHistory = async () => {
     const letterId = searchParams.get("letterId");
@@ -105,7 +178,7 @@ export default function SupervisorDetailSurat() {
     try {
       const [letterResponse, historyResponse] = await Promise.all([
         fetch(`${API_BASE}/letters/${letterId}?scope=all`, { credentials: "include" }),
-        fetch(`${API_BASE}/letters/${letterId}/history?scope=all&merge=1`, {
+        fetch(`${API_BASE}/letters/${letterId}/history?scope=all`, {
           credentials: "include",
         }),
       ]);
@@ -117,18 +190,18 @@ export default function SupervisorDetailSurat() {
 
       if (historyResponse.ok) {
         const data = (await historyResponse.json()) as HistoryApi[];
-          const mapped = data.map((item) => ({
-            role: getRoleLabel(item.status),
-            status: getStatusText(item.status),
-            date: new Date(item.createdAt).toLocaleString("id-ID", {
-              day: "2-digit",
+        const mapped = data.map((item) => ({
+          role: getRoleLabel(item.status),
+          status: getStatusText(item.status),
+          date: new Date(item.createdAt).toLocaleString("id-ID", {
+            day: "2-digit",
             month: "long",
             year: "numeric",
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
           }),
-          note: item.note ?? "Tidak ada catatan",
+          note: item.note ?? t("noNotes"),
           dotClass: statusDot[item.status],
           pillClass: statusPill[item.status],
         }));
@@ -146,7 +219,7 @@ export default function SupervisorDetailSurat() {
   }, [searchParams]);
 
   const values = letter?.values ?? null;
-  const namaLengkap = readValue(values, "nama");
+  const namaLengkap = readValueFrom(values, ["namaLengkap", "nama"]);
   const nim = readValue(values, "nim");
   const programStudi = readValue(values, "programStudi");
   const alamat = readValue(values, "alamat");
@@ -154,12 +227,67 @@ export default function SupervisorDetailSurat() {
   const keperluan = readValue(values, "keperluan");
   const tahunMulai = readValue(values, "tahunMulai");
   const tahunSelesai = readValue(values, "tahunSelesai");
+  const nomorSurat = readValueFrom(values, ["nomorSurat", "nomor"]);
+  const jenisKategori = [letter?.letterType?.name, letter?.letterType?.description].filter(Boolean).join(" / ") || "-";
+  const createdByRoleRaw = letter?.createdBy?.userRole?.[0]?.role?.name;
+  const createdByRoleValue = readValueFrom(values, ["role", "peran"]);
+  const createdByRole =
+    createdByRoleRaw === "mahasiswa"
+      ? t("studentRole")
+    : createdByRoleRaw === "supervisor_akademik"
+      ? t("supervisorRole")
+      : createdByRoleRaw === "manager_tu"
+      ? t("managerRole")
+      : createdByRoleRaw === "upa"
+      ? t("upaRole")
+      : createdByRoleRaw
+      ? formatRoleName(createdByRoleRaw)
+      : createdByRoleValue
+      ? formatRoleName(createdByRoleValue)
+      : t("studentRole");
+  const noHp =
+    readValueFrom(values, ["noHp", "noHP", "nomorHp", "nomorHP", "phone", "telepon", "telp"]) ?? "-";
+  const tujuanSaatIni =
+    letter?.status === "COMPLETED"
+      ? t("managerRole")
+      : letter?.status === "IN_PROGRESS"
+      ? t("studentRole")
+      : letter?.status === "REJECTED"
+      ? t("supervisorRole")
+      : letter?.status === "PENDING"
+      ? t("supervisorRole")
+      : "-";
+  const tanggalDiterima = letter
+    ? new Date(letter.createdAt).toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
+  const referenceDate = letter?.createdAt ? new Date(letter.createdAt) : new Date();
+  const academicYearStart = getAcademicYearStart(referenceDate);
+  const defaultAcademicYear = `${academicYearStart} / ${academicYearStart + 1}`;
+  const tahunAkademik =
+    tahunMulai && tahunSelesai
+      ? `${tahunMulai} / ${tahunSelesai}`
+      : tahunMulai ?? tahunSelesai ?? defaultAcademicYear;
+  const entryYear =
+    parseEntryYear(readValue(values, "tahunMasuk")) ??
+    parseEntryYear(readValue(values, "angkatan")) ??
+    parseEntryYear(letter?.createdBy?.mahasiswa?.tahunMasuk) ??
+    parseEntryYear(letter?.createdBy?.mahasiswa?.angkatan);
+  const computedSemester = getSemesterNumber(entryYear, referenceDate);
+  const semesterLabel = semester
+    ? semester
+    : computedSemester
+    ? `${computedSemester} (${spellNumberId(computedSemester)})`
+    : "-";
 
   const handleHistorySubmit = async (status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "REJECTED", note?: string) => {
     const letterId = searchParams.get("letterId");
     if (!letterId) return;
 
-    await fetch(`${API_BASE}/letters/${letterId}/history?scope=all`, {
+    const response = await fetch(`${API_BASE}/letters/${letterId}/history?scope=all`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -168,119 +296,127 @@ export default function SupervisorDetailSurat() {
         note,
       }),
     });
+    if (!response.ok) {
+      alert("Gagal memperbarui surat. Silakan coba lagi.");
+      return;
+    }
 
     setLetter((prev) => (prev ? { ...prev, status } : prev));
     await loadHistory();
+    if (status === "COMPLETED") {
+      alert("Surat berhasil disetujui.");
+    } else if (status === "IN_PROGRESS") {
+      alert("Revisi berhasil dikirim.");
+    } else if (status === "REJECTED") {
+      alert("Surat berhasil ditolak.");
+    }
   };
 
-  const isActionLocked = letter?.status ? letter.status !== "PENDING" : false;
+  const canAct = letter?.status === "PENDING";
+  const isActionLocked = !canAct;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
       <StudentNavbar
-        userLabel="Supervisor Akademik"
-        initials="SA"
-        userName="Ahmad Douglas"
-        email="ahmaddouglas12345@gmail.com"
-        idLabel="NIP"
-        idValue="198012102005011001"
-        prodi="Informatika"
+        dashboardHref="/supervisor/dashboard"
+        onMenuClick={() => setSidebarOpen((prev) => !prev)}
       />
       <div className="flex flex-1">
-        <SupervisorSidebar active="penerima" />
+        {sidebarOpen ? <SupervisorSidebar active="surat-masuk" /> : null}
 
         <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-8">
-          <div className="text-sm text-slate-500">Surat Masuk / Penerima / Identitas Pemohon</div>
+          <div className="text-sm text-slate-500">{t("detailBreadcrumb")}</div>
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <section className="space-y-4">
-              <CardSection title="Identitas Pengaju">
+              <CardSection title={t("identitasPengaju")}>
                 <Grid>
-                  <Row label="Nama Lengkap" value={applicant.fullName ?? "Ahmad Douglas"} />
-                  <Row label="Role" value="Mahasiswa" />
-                  <Row label="NIM" value={nim ?? applicant.nim ?? "24060131130063"} />
-                  <Row label="Program Studi" value={programStudi ?? applicant.studyProgram ?? "S1 - Informatika"} />
-                  <Row label="Email" value={letter?.createdBy?.email ?? applicant.email ?? "ahmaddouglas@students.undip.ac.id"} />
-                  <Row label="No. HP" value="091239102390123" />
+                  <Row label={t("fullName")} value={namaLengkap ?? letter?.createdBy?.name ?? "-"} />
+                  <Row label={t("role")} value={createdByRole} />
+                  <Row label={t("studentId")} value={nim ?? "-"} />
+                  <Row label={t("program")} value={programStudi ?? "-"} />
+                  <Row label={t("email")} value={letter?.createdBy?.email ?? "-"} />
+                  <Row label={t("phone")} value={noHp} />
                 </Grid>
               </CardSection>
 
-              <CardSection title="Detail Surat">
+              <CardSection title={t("detailSurat")}>
                 <Grid>
-                  <Row label="Jenis & Kategori" value="Surat Keterangan / Surat Keterangan Mahasiswa" />
-                  <Row label="Tujuan" value="Manager TU" />
-                  <Row label="No Surat" value="INV/2024/X/102" />
-                  <Row label="Perihal" value={letter?.letterType?.name ?? "Surat Keterangan Mahasiswa"} />
-                  <Row
-                    label="Diterima"
-                    value={letter ? new Date(letter.createdAt).toISOString().slice(0, 10) : "2024-10-26"}
-                  />
-                  <Row label="Tahun Akademik" value={`${tahunMulai ?? "2024"} / ${tahunSelesai ?? "2025"}`} />
-                  <Row label="Semester" value={semester ?? "4 (Empat)"} />
-                  <Row label="Alamat" value={alamat ?? "Semarang, Jawa Tengah"} full />
-                  <Row label="Keperluan" value={keperluan ?? "Sebagai syarat administratif untuk pencairan tunjangan orang tua."} full />
+                  <Row label={t("typeCategory")} value={jenisKategori} />
+                  <Row label={t("destination")} value={tujuanSaatIni} />
+                  <Row label={t("letterNumber")} value={nomorSurat ?? "-"} />
+                  <Row label={t("subject")} value={letter?.letterType?.name ?? "-"} />
+                  <Row label={t("received")} value={tanggalDiterima} />
+                  <Row label={t("academicYear")} value={tahunAkademik} />
+                  <Row label={t("semester")} value={semesterLabel} />
+                  <Row label={t("address")} value={alamat ?? "-"} full />
+                  <Row label={t("purpose")} value={keperluan ?? "-"} full />
                 </Grid>
               </CardSection>
 
-              <CardSection title="Lampiran">
-                <div className="text-sm font-semibold text-slate-900">KTM - KTM_24060121120001.pdf</div>
-                <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
-                  <Image
-                    src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=1000&q=80"
-                    alt="Lampiran"
-                    width={1000}
-                    height={800}
-                    className="h-auto w-full object-cover"
-                  />
-                </div>
+              <CardSection title={t("attachment")}>
+                <div className="text-sm text-slate-500">{t("noAttachment")}</div>
               </CardSection>
             </section>
 
             <section className="space-y-4">
-              <CardSection title="Pratinjau Surat">
+              <CardSection title={t("previewLetter")}>
                 <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
                   <Link href={letter ? `/supervisor/pratinjau-surat?letterId=${letter.id}` : "/supervisor/pratinjau-surat"}>
-                    Buka Pratinjau
+                    {t("openPreview")}
                   </Link>
                 </Button>
               </CardSection>
 
-              <CardSection title="Aksi">
-                <div className="space-y-2">
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => setShowApprove(true)}
-                    disabled={isActionLocked}
-                  >
-                    Setujui
-                  </Button>
-                  <Button
-                    className="w-full bg-orange-500 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => setShowRevision(true)}
-                    disabled={isActionLocked}
-                  >
-                    Revisi
-                  </Button>
-                  <Button
-                    className="w-full bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={() => setShowReject(true)}
-                    disabled={isActionLocked}
-                  >
-                    Tolak
-                  </Button>
-                </div>
-              </CardSection>
+              {canAct ? (
+                <CardSection title={t("actions")}>
+                  <div className="space-y-2">
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => setShowApprove(true)}
+                      disabled={isActionLocked}
+                    >
+                      {t("approve")}
+                    </Button>
+                    <Button
+                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => setShowRevision(true)}
+                      disabled={isActionLocked}
+                    >
+                      {t("revise")}
+                    </Button>
+                    <Button
+                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => {
+                        if (letter?.id) {
+                          window.location.href = `/supervisor/revisi-surat?letterId=${letter.id}`;
+                        }
+                      }}
+                      disabled={isActionLocked}
+                    >
+                      Revisi Supervisor
+                    </Button>
+                    <Button
+                      className="w-full bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => setShowReject(true)}
+                      disabled={isActionLocked}
+                    >
+                      {t("reject")}
+                    </Button>
+                  </div>
+                </CardSection>
+              ) : null}
 
               <CardSection>
                 <div className="flex items-center gap-2 pb-3">
                   <div className="rounded-md bg-blue-50 p-2 text-blue-600">📅</div>
-                  <h3 className="text-sm font-semibold text-slate-900">Riwayat Surat ({history.length})</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">{t("history")} ({history.length})</h3>
                 </div>
                 <Separator className="bg-slate-200" />
                 <div className="mt-4 space-y-6">
                   {isLoading ? (
-                    <div className="text-sm text-slate-500">Memuat riwayat...</div>
+                    <div className="text-sm text-slate-500">{t("loadingHistory")}</div>
                   ) : history.length === 0 ? (
-                    <div className="text-sm text-slate-500">Belum ada riwayat.</div>
+                    <div className="text-sm text-slate-500">{t("noHistory")}</div>
                   ) : (
                     history.map((item, idx) => (
                       <div key={`${item.role}-${item.date}`} className="relative pl-6 text-sm text-slate-800">
@@ -301,12 +437,19 @@ export default function SupervisorDetailSurat() {
                           <span>{item.date}</span>
                         </div>
                         <div className="mt-2 text-xs text-slate-700">
-                          Status:{" "}
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${item.pillClass}`}>
-                            {item.status}
-                          </span>
+                          {t("statusLabel")}:
+                          <div className="mt-1 flex flex-col items-start gap-1">
+                            {splitStatusText(item.status).map((part, partIndex) => (
+                              <span
+                                key={partIndex}
+                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${item.pillClass}`}
+                              >
+                                {part}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <div className="mt-2 text-xs text-slate-600">Catatan:</div>
+                        <div className="mt-2 text-xs text-slate-600">{t("note")}:</div>
                         <div className="mt-1 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
                           {item.note}
                         </div>
@@ -326,20 +469,20 @@ export default function SupervisorDetailSurat() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-3xl rounded-xl bg-white shadow-lg">
             <div className="border-b border-slate-200 px-6 py-4">
-              <h2 className="text-xl font-bold text-slate-900">Verifikasi</h2>
+              <h2 className="text-xl font-bold text-slate-900">{t("verify")}</h2>
             </div>
             <div className="space-y-4 px-6 py-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="text-slate-500">Nama Surat</div>
-                  <div className="font-semibold text-slate-900">Pengajuan Surat Keterangan Mahasiswa</div>
+                  <div className="text-slate-500">{t("letterName")}</div>
+                  <div className="font-semibold text-slate-900">{letter?.letterType?.name ?? "-"}</div>
                 </div>
                 <div>
-                  <div className="text-slate-500">Jenis Surat</div>
-                  <div className="font-semibold text-slate-900">Internal</div>
+                  <div className="text-slate-500">{t("letterType")}</div>
+                  <div className="font-semibold text-slate-900">{letter?.letterType?.description ?? "-"}</div>
                 </div>
               </div>
-              <div className="text-sm text-slate-700">Yakin ingin memverifikasi surat ini?</div>
+              <div className="text-sm text-slate-700">{t("confirmVerify")}</div>
             </div>
             <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4">
               <Button
@@ -347,7 +490,7 @@ export default function SupervisorDetailSurat() {
                 className="border-slate-300 text-slate-700 hover:bg-slate-50"
                 onClick={() => setShowApprove(false)}
               >
-                Kembali
+                {t("back")}
               </Button>
               <Button
                 className="bg-[#0A77C8] hover:bg-[#085ea0]"
@@ -356,7 +499,7 @@ export default function SupervisorDetailSurat() {
                   setShowApprove(false);
                 }}
               >
-                Setujui Surat
+                {t("approve")}
               </Button>
             </div>
           </div>
@@ -367,25 +510,25 @@ export default function SupervisorDetailSurat() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-3xl rounded-xl bg-white shadow-lg">
             <div className="border-b border-slate-200 px-6 py-4">
-              <h2 className="text-xl font-bold text-slate-900">Tolak</h2>
+              <h2 className="text-xl font-bold text-slate-900">{t("reject")}</h2>
             </div>
             <div className="space-y-4 px-6 py-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="text-slate-500">Nama Surat</div>
-                  <div className="font-semibold text-slate-900">Pengajuan Surat Keterangan Mahasiswa</div>
+                  <div className="text-slate-500">{t("letterName")}</div>
+                  <div className="font-semibold text-slate-900">{letter?.letterType?.name ?? "-"}</div>
                 </div>
                 <div>
-                  <div className="text-slate-500">Jenis Surat</div>
-                  <div className="font-semibold text-slate-900">Surat Keterangan</div>
+                  <div className="text-slate-500">{t("letterType")}</div>
+                  <div className="font-semibold text-slate-900">{letter?.letterType?.description ?? "-"}</div>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
-                <div className="text-slate-500">Berikan catatan penolakan...</div>
+                <div className="text-slate-500">{t("rejectionNoteLabel")}</div>
                 <textarea
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0A77C8]"
                   rows={3}
-                  placeholder="Tambahkan catatan..."
+                  placeholder={t("rejectionNotePlaceholder")}
                   value={rejectNote}
                   onChange={(e) => setRejectNote(e.target.value)}
                 />
@@ -393,7 +536,7 @@ export default function SupervisorDetailSurat() {
             </div>
             <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4">
               <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50" onClick={() => setShowReject(false)}>
-                Kembali
+                {t("back")}
               </Button>
               <Button
                 className="bg-[#0A77C8] hover:bg-[#085ea0]"
@@ -403,7 +546,7 @@ export default function SupervisorDetailSurat() {
                   setRejectNote("");
                 }}
               >
-                Kirim Penolakan
+                {t("sendRejection")}
               </Button>
             </div>
           </div>
@@ -414,37 +557,35 @@ export default function SupervisorDetailSurat() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-3xl rounded-xl bg-white shadow-lg">
             <div className="border-b border-slate-200 px-6 py-4">
-              <h2 className="text-xl font-bold text-slate-900">Revisi</h2>
+              <h2 className="text-xl font-bold text-slate-900">{t("revise")}</h2>
             </div>
             <div className="space-y-4 px-6 py-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="text-slate-500">Nama Surat</div>
-                  <div className="font-semibold text-slate-900">Pengajuan Surat Keterangan Mahasiswa</div>
+                  <div className="text-slate-500">{t("letterName")}</div>
+                  <div className="font-semibold text-slate-900">{letter?.letterType?.name ?? "-"}</div>
                 </div>
                 <div>
-                  <div className="text-slate-500">Jenis Surat</div>
-                  <div className="font-semibold text-slate-900">Surat Keterangan</div>
+                  <div className="text-slate-500">{t("letterType")}</div>
+                  <div className="font-semibold text-slate-900">{letter?.letterType?.description ?? "-"}</div>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
-                <div className="text-slate-500">Pilih Target Revisi</div>
+                <div className="text-slate-500">{t("revisionTarget")}</div>
                 <select
                   className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800"
                   defaultValue="Mahasiswa"
                 >
-                  <option value="Mahasiswa">Mahasiswa</option>
+                  <option value="Mahasiswa">{t("studentRole")}</option>
                 </select>
-                <div className="text-slate-500 text-xs">
-                  Ketika surat direvisi, surat akan dikirim kembali ke target tersebut.
-                </div>
+                <div className="text-slate-500 text-xs">{t("revisionTargetDesc")}</div>
               </div>
               <div className="space-y-2 text-sm">
-                <div className="text-slate-500">Berikan catatan revisi...</div>
+                <div className="text-slate-500">{t("revisionNoteLabel")}</div>
                 <textarea
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0A77C8]"
                   rows={3}
-                  placeholder="Tambahkan catatan..."
+                  placeholder={t("revisionNotePlaceholder")}
                   value={revisionNote}
                   onChange={(e) => setRevisionNote(e.target.value)}
                 />
@@ -456,7 +597,7 @@ export default function SupervisorDetailSurat() {
                 className="border-slate-300 text-slate-700 hover:bg-slate-50"
                 onClick={() => setShowRevision(false)}
               >
-                Kembali
+                {t("back")}
               </Button>
               <Button
                 className="bg-[#0A77C8] hover:bg-[#085ea0]"
@@ -466,7 +607,7 @@ export default function SupervisorDetailSurat() {
                   setRevisionNote("");
                 }}
               >
-                Kirim Revisi
+                {t("sendRevision")}
               </Button>
             </div>
           </div>

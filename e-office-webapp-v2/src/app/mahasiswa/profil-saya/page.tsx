@@ -13,6 +13,7 @@ import { applicant } from "@/data/applicant";
 export default function ProfilSayaPage() {
   const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogout = () => {
     setShowLogoutConfirm(false);
@@ -21,9 +22,9 @@ export default function ProfilSayaPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar />
+        {sidebarOpen ? <StudentSidebar /> : null}
 
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-6 py-8">
           <div>

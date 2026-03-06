@@ -8,13 +8,6 @@ export function Navbar() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-sm font-semibold">
             FM
           </div>
-          <div className="leading-tight">
-            <p className="text-[11px] uppercase tracking-wide opacity-80">
-              Fakultas
-            </p>
-            <p className="text-sm font-semibold">Sains dan Matematika</p>
-            <p className="text-[11px] opacity-80">Universitas Diponegoro</p>
-          </div>
         </div>
 
         <div className="flex items-center gap-4">

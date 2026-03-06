@@ -81,6 +81,16 @@ const getRoleLabel = (status: HistoryApi["status"]) => {
   return "Mahasiswa";
 };
 
+const splitStatusText = (text: string) => {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  if (trimmed.length <= 20) return [trimmed];
+  const words = trimmed.split(/\s+/);
+  if (words.length <= 2) return [trimmed];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+};
+
 const readValue = (values: Record<string, unknown> | null | undefined, key: string) => {
   const value = values?.[key];
   return typeof value === "string" && value.trim().length > 0 ? value : undefined;
@@ -90,6 +100,7 @@ export default function SuratSayaDetailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const letterId = searchParams.get("letterId");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [letter, setLetter] = useState<LetterApi | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +115,7 @@ export default function SuratSayaDetailPage() {
       try {
         const [letterResponse, historyResponse] = await Promise.all([
           fetch(`${API_BASE}/letters/${letterId}`, { credentials: "include" }),
-          fetch(`${API_BASE}/letters/${letterId}/history?merge=1`, { credentials: "include" }),
+          fetch(`${API_BASE}/letters/${letterId}/history`, { credentials: "include" }),
         ]);
 
         if (letterResponse.ok) {
@@ -167,9 +178,9 @@ export default function SuratSayaDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
-      <StudentNavbar />
+      <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        <StudentSidebar active="surat-saya" />
+        {sidebarOpen ? <StudentSidebar active="surat-saya" /> : null}
 
         <main className="mx-auto flex max-w-6xl flex-1 flex-col gap-4 px-6 py-6">
           <h1 className="text-lg font-semibold text-slate-900">Detail Surat</h1>
@@ -271,7 +282,7 @@ export default function SuratSayaDetailPage() {
                           <span className="absolute left-2 top-5 h-[calc(100%-20px)] w-px -translate-x-1/2 bg-slate-200" aria-hidden />
                         ) : null}
                         <span
-                          className={`absolute left-2 top-2 h-3 w-3 -translate-x-1/2 rounded-full ${item.dotClass}`}
+                          className={`absolute left-2 top-2 inline-block h-3 w-3 -translate-x-1/2 rounded-full ${item.dotClass}`}
                           aria-hidden
                         />
 
@@ -284,10 +295,17 @@ export default function SuratSayaDetailPage() {
                           <span>{item.date}</span>
                         </div>
                         <div className="mt-2 text-xs text-slate-700">
-                          Status:{" "}
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${item.pillClass}`}>
-                            {item.status}
-                          </span>
+                          Status:
+                          <div className="mt-1 flex flex-col items-start gap-1">
+                            {splitStatusText(item.status).map((part, partIndex) => (
+                              <span
+                                key={partIndex}
+                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${item.pillClass}`}
+                              >
+                                {part}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                         <div className="mt-2 text-xs text-slate-600">Catatan:</div>
                         <div className="mt-1 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">

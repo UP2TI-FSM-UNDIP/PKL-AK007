@@ -11,6 +11,8 @@ type StudentLetterPreviewProps = {
   };
   academicYear: { start: string; end: string };
   keperluan: string;
+  signatureDate?: string;
+  signatureImage?: string | null;
 };
 
 export function StudentLetterPreview({
@@ -18,6 +20,8 @@ export function StudentLetterPreview({
   applicant,
   academicYear,
   keperluan,
+  signatureDate,
+  signatureImage,
 }: StudentLetterPreviewProps) {
   const hasValue = (value: string) => value.trim().length > 0;
   const hasName = hasValue(applicant.name);
@@ -31,9 +35,11 @@ export function StudentLetterPreview({
   const hasAcademicYearStart = hasValue(academicYear.start);
   const hasAcademicYearEnd = hasValue(academicYear.end);
   const dottedLineClass = "border-b border-dotted border-black pb-1";
+  const signatureLine = signatureDate ? `Semarang, ${signatureDate}` : "Semarang, ……………………20….";
+
   return (
     <div
-      className="w-full max-w-[210mm] bg-white text-black"
+      className="w-full max-w-[210mm] bg-[#ffffff] text-black"
       style={{
         minHeight: "297mm",
         padding: "14mm 25mm 25mm",
@@ -163,13 +169,27 @@ export function StudentLetterPreview({
 
       {/* TTD */}
       <div className="mt-14 flex justify-end">
-        <div className="w-80 text-[12pt]">
-          <div className="text-left">Semarang, ……………………20….</div>
+        <div className="w-80 pl-25 text-[12pt]">
+          <div className="text-left">{signatureLine}</div>
           <div className="mt-2 text-left">a.n. Dekan,</div>
           <div className="mt-1 text-left">Wakil Dekan I,</div>
           <div className="mt-1 text-left">u.b. Manager Bagian Tata Usaha,</div>
-          
-          <div className="mt-20">
+
+          <div className="mt-2">
+            {signatureImage ? (
+              <div className="h-36 w-full overflow-hidden">
+                <img
+                  src={signatureImage}
+                  alt="Tanda tangan"
+                  className="h-full w-full object-contain object-center"
+                />
+              </div>
+            ) : (
+              <div className="h-36" />
+            )}
+          </div>
+
+          <div className="mt-2">
             <div className="font-bold text-left underline underline-offset-4">
               Lilik Maryuni, S.E., M.Si.
             </div>

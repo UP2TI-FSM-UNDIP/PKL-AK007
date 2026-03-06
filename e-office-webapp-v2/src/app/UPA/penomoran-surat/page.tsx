@@ -1,49 +1,217 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { 
-  ZoomIn, 
-  ZoomOut, 
-  ChevronLeft, 
-  Save, 
-  Upload, 
-  Hash,
-  Calendar,
-  User,
-  FileText,
-  Download,
-  RotateCcw,
-  FileSignature,
-  Stamp
-} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, Hash, FileText } from "lucide-react";
+
+import { StudentLetterPreview } from "@/components/letter/StudentLetterPreview";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+type LetterValues = {
+  nama?: string;
+  namaLengkap?: string;
+  nim?: string;
+  programStudi?: string;
+  tempatLahir?: string;
+  tanggalLahir?: string;
+  alamat?: string;
+  semester?: string;
+  keperluan?: string;
+  tahunMulai?: string;
+  tahunSelesai?: string;
+  nomorSurat?: string;
+  nomor?: string;
+  tahunMasuk?: string;
+  angkatan?: string;
+  signatureImage?: string;
+  signedAt?: string;
+};
+
+type LetterApi = {
+  id: string;
+  status: string;
+  createdAt: string;
+  letterType?: {
+    name?: string;
+  } | null;
+  values?: LetterValues | null;
+  createdBy?: {
+    name?: string | null;
+    mahasiswa?: {
+      tahunMasuk?: string | number | null;
+      angkatan?: string | number | null;
+    } | null;
+  } | null;
+};
+
+const getAcademicYearStart = (date: Date) => {
+  const month = date.getMonth() + 1;
+  return month <= 6 ? date.getFullYear() - 1 : date.getFullYear();
+};
+
+const parseEntryYear = (value?: string | number | null) => {
+  if (value === null || typeof value === "undefined") return null;
+  const trimmed = String(value).trim();
+  if (/^\d{4}$/.test(trimmed)) {
+    return Number(trimmed);
+  }
+  return null;
+};
+
+
+const getSemesterNumber = (entryYear: number | null, date: Date) => {
+  if (!entryYear) return null;
+  const currentYear = date.getFullYear();
+  const diffYears = currentYear - entryYear;
+  if (diffYears < 0) return null;
+  const month = date.getMonth() + 1;
+  const base = diffYears * 2;
+  const raw = month <= 6 ? base + 2 : base + 1;
+  if (raw < 1) return null;
+  return Math.min(raw, 14);
+};
+
+const spellNumberId = (value: number) => {
+  const mapping: Record<number, string> = {
+    1: "Satu",
+    2: "Dua",
+    3: "Tiga",
+    4: "Empat",
+    5: "Lima",
+    6: "Enam",
+    7: "Tujuh",
+    8: "Delapan",
+    9: "Sembilan",
+    10: "Sepuluh",
+    11: "Sebelas",
+    12: "Dua Belas",
+    13: "Tiga Belas",
+    14: "Empat Belas",
+  };
+  return mapping[value] ?? `${value}`;
+};
+const formatSemesterValue = (value?: string) => {
+  if (!value) return value;
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return value;
+  return `${numeric} (${spellNumberId(numeric)})`;
+};
+
 
 export default function PenomoranSuratPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [zoom, setZoom] = useState(1);
-  const [stamp, setStamp] = useState<File | null>(null);
-  const [number, setNumber] = useState("1024/UN7.5.8/TU/2023");
-  const [date, setDate] = useState("2023-10-24");
+  const [number, setNumber] = useState("");
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [letter, setLetter] = useState<LetterApi | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    alert("Surat berhasil dinomori dan distempel!");
-    router.push("/UPA/dashboard");
-  };
-
-  const handleBack = () => {
-    router.push("/UPA/identitas-pemohon");
-  };
+  useEffect(() => {
+    const letterId = searchParams.get("letterId");
+    if (!letterId) return;
+    const loadLetter = async () => {
+      const response = await fetch(`${API_BASE}/letters/${letterId}?scope=all`, {
+        credentials: "include",
+      });
+      if (!response.ok) return;
+      const data = (await response.json()) as LetterApi;
+      setLetter(data);
+      setNumber(data.values?.nomorSurat ?? data.values?.nomor ?? "");
+    };
+    loadLetter();
+  }, [searchParams]);
 
   const generateNumber = () => {
     const year = new Date().getFullYear();
-    const random = Math.floor(Math.random() * 1000);
+    const random = Math.floor(Math.random() * 900) + 100;
     setNumber(`${random}/UN7.5.8/UPA/${year}`);
   };
 
+  const handleSave = async () => {
+    const letterId = searchParams.get("letterId");
+    if (!letterId) {
+      alert("ID surat tidak ditemukan.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const response = await fetch(`${API_BASE}/letters/${letterId}/actions/upa`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "NUMBER",
+          nomorSurat: number || undefined,
+          note: "Nomor surat diberikan oleh UPA",
+        }),
+      });
+      if (!response.ok) {
+        alert("Gagal menyimpan nomor surat. Silakan coba lagi.");
+        return;
+      }
+      alert("Nomor surat berhasil disimpan.");
+      router.push("/UPA/penerima");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleBack = () => {
+    const letterId = searchParams.get("letterId");
+    router.push(letterId ? `/UPA/identitas-pemohon?letterId=${letterId}` : "/UPA/identitas-pemohon");
+  };
+
+  const values = letter?.values ?? null;
+  const formatTanggal = (value?: string) => {
+    if (!value) return "-";
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    return parsed.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const formatSignedDate = (value?: string) => {
+    if (!value) return undefined;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return undefined;
+    return parsed.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const academicYear = useMemo(() => {
+    const referenceDate = new Date();
+    const academicYearStart = getAcademicYearStart(referenceDate);
+    return values?.tahunMulai || values?.tahunSelesai
+      ? { start: values?.tahunMulai ?? "-", end: values?.tahunSelesai ?? "-" }
+      : { start: `${academicYearStart}`, end: `${academicYearStart + 1}` };
+  }, [values?.tahunMulai, values?.tahunSelesai]);
+
+  const semesterLabel = useMemo(() => {
+    const referenceDate = new Date();
+    const entryYear =
+      parseEntryYear(values?.tahunMasuk) ??
+      parseEntryYear(values?.angkatan) ??
+      parseEntryYear(letter?.createdBy?.mahasiswa?.tahunMasuk) ??
+      parseEntryYear(letter?.createdBy?.mahasiswa?.angkatan);
+    const computedSemester = getSemesterNumber(entryYear, referenceDate);
+    return values?.semester
+      ? values.semester
+      : computedSemester
+      ? `${computedSemester} (${spellNumberId(computedSemester)})`
+      : "-";
+  }, [values?.angkatan, values?.nim, values?.semester, values?.tahunMasuk]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ===== HEADER ===== */}
       <header className="bg-white border-b shadow-sm px-6 py-4">
         <div className="flex items-center text-sm text-gray-500 mb-2">
           <Link href="/UPA/dashboard" className="hover:text-blue-600">
@@ -58,12 +226,8 @@ export default function PenomoranSuratPage() {
         </div>
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-semibold text-gray-800">
-              Penomoran dan Stempel Surat
-            </h1>
-            <p className="text-sm text-gray-600">
-              Berikan nomor resmi dan stempel pada surat
-            </p>
+            <h1 className="text-xl font-semibold text-gray-800">Penomoran Surat</h1>
+            <p className="text-sm text-gray-600">Berikan nomor resmi pada surat</p>
           </div>
           <button
             onClick={handleBack}
@@ -76,20 +240,15 @@ export default function PenomoranSuratPage() {
       </header>
 
       <div className="flex flex-col lg:flex-row gap-6 p-6">
-        {/* ===== LEFT PANEL ===== */}
         <div className="lg:w-80 space-y-6">
-          {/* Form Penomoran */}
           <div className="bg-white rounded-xl border shadow-sm p-6">
             <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
               <Hash className="w-5 h-5" />
               Form Penomoran
             </h3>
             <div className="space-y-4">
-              {/* Nomor Surat */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nomor Surat
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Surat</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -99,22 +258,17 @@ export default function PenomoranSuratPage() {
                     placeholder="Nomor surat"
                   />
                   <button
+                    type="button"
                     onClick={generateNumber}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Generate
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Format: [nomor]/UN7.5.8/UPA/[tahun]
-                </p>
               </div>
 
-              {/* Tanggal Surat */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tanggal Surat
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Surat</label>
                 <input
                   type="date"
                   value={date}
@@ -123,170 +277,75 @@ export default function PenomoranSuratPage() {
                 />
               </div>
 
-              {/* Penandatangan */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Penandatangan
-                </label>
-                <select className="w-full border rounded-lg px-3 py-2 text-sm">
-                  <option>Lilik Maryuni, S.E., M.Si (Manajer TU)</option>
-                  <option>Dr. Ahmad Budiman, M.Si (Wakil Dekan)</option>
-                  <option>Prof. Dr. Siti Aminah (Dekan)</option>
-                </select>
-              </div>
-
-              {/* Info Box */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <span className="font-bold">Perhatian:</span> Nomor surat yang sudah diterbitkan tidak dapat diubah. Pastikan semua data sudah benar.
+                  <span className="font-bold">Perhatian:</span> Nomor surat yang sudah diterbitkan tidak dapat diubah.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Detail Surat */}
           <div className="bg-white rounded-xl border shadow-sm p-6">
             <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5" />
               Detail Surat
             </h3>
-            <div className="space-y-3">
-              <DetailItem label="ID Surat" value="SM/2023/08/123" />
-              <DetailItem label="Pengaju" value="Ahmad Douglas" />
-              <DetailItem label="Jenis Surat" value="Surat Keterangan Mahasiswa" />
-              <DetailItem label="Status" value="Menunggu Penomoran" />
+            <div className="space-y-3 text-sm">
+              <DetailItem label="ID Surat" value={letter?.id ?? "-"} />
+              <DetailItem label="Pengaju" value={letter?.createdBy?.name ?? "-"} />
+              <DetailItem label="Jenis Surat" value={letter?.letterType?.name ?? "-"} />
+              <DetailItem label="Status" value={letter?.status ?? "-"} />
             </div>
           </div>
         </div>
 
-        {/* ===== MAIN PREVIEW ===== */}
         <div className="flex-1 flex flex-col">
-          {/* Toolbar */}
           <div className="bg-white rounded-xl border shadow-sm p-4 mb-6">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Pratinjau Surat</span>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <FileSignature className="w-4 h-4" />
-                  <span>Dokumen sudah ditandatangani</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1">
-                  <button
-                    onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
-                    className="p-1 hover:bg-gray-200 rounded"
-                    title="Zoom Out"
-                  >
-                    <ZoomOut className="w-5 h-5" />
-                  </button>
-                  <span className="w-16 text-center text-sm font-medium">
-                    {Math.round(zoom * 100)}%
-                  </span>
-                  <button
-                    onClick={() => setZoom(z => Math.min(z + 0.1, 2))}
-                    className="p-1 hover:bg-gray-200 rounded"
-                    title="Zoom In"
-                  >
-                    <ZoomIn className="w-5 h-5" />
-                  </button>
-                </div>
-                <button className="p-2 border rounded-lg hover:bg-gray-50">
-                  <Download className="w-5 h-5" />
+              <div className="text-sm font-medium">Pratinjau Surat</div>
+              <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1">
+                <button
+                  onClick={() => setZoom((prev) => Math.max(prev - 0.1, 0.5))}
+                  className="p-1 hover:bg-gray-200 rounded"
+                  title="Zoom Out"
+                >
+                  −
+                </button>
+                <span className="w-16 text-center text-sm font-medium">{Math.round(zoom * 100)}%</span>
+                <button
+                  onClick={() => setZoom((prev) => Math.min(prev + 0.1, 2))}
+                  className="p-1 hover:bg-gray-200 rounded"
+                  title="Zoom In"
+                >
+                  +
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Document Preview */}
           <div className="flex-1 bg-gray-100 rounded-xl border shadow-sm p-8 overflow-auto">
             <div className="flex justify-center">
               <div
                 className="transition-transform duration-200 origin-top"
                 style={{ transform: `scale(${zoom})` }}
               >
-                {/* Document Preview Card */}
-                <div className="bg-white shadow-lg border border-gray-200 w-[800px] min-h-[900px] rounded-lg relative p-8">
-                  {/* Document Header */}
-                  <div className="text-center mb-8 border-b pb-8">
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">LOGO UNDIP</span>
-                      </div>
-                      <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">LOGO FSM</span>
-                      </div>
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                      FAKULTAS SAINS DAN MATEMATIKA
-                    </h1>
-                    <h2 className="text-xl font-semibold text-blue-600 mb-1">
-                      UNIVERSITAS DIPONEGORO
-                    </h2>
-                    <div className="mt-4">
-                      <div className="inline-block px-6 py-2 bg-blue-100 rounded-lg">
-                        <p className="text-lg font-bold text-blue-700">
-                          {number || "NOMOR: -/UN7.5.8/UPA/2023"}
-                        </p>
-                      </div>
-                      <p className="text-gray-600 mt-2">Tanggal: {date || "DD/MM/YYYY"}</p>
-                    </div>
-                  </div>
-
-                  {/* Document Body */}
-                  <div className="space-y-6">
-                    <div className="text-center mb-8">
-                      <h3 className="text-2xl font-bold underline mb-4">
-                        SURAT KETERANGAN MAHASISWA
-                      </h3>
-                    </div>
-
-                    <div className="space-y-4 text-justify">
-                      <p>Yang bertanda tangan di bawah ini:</p>
-                      
-                      <div className="ml-8 space-y-2">
-                        <p>Nama: <span className="font-bold">Ahmad Douglas</span></p>
-                        <p>NIP: 198201012010121001</p>
-                        <p>Jabatan: Manager Tata Usaha</p>
-                        <p>Fakultas Sains dan Matematika UNDIP</p>
-                      </div>
-
-                      <p>Dengan ini menerangkan bahwa:</p>
-                      
-                      <div className="ml-8 space-y-2">
-                        <p>Nama: <span className="font-bold">Ananda Putri</span></p>
-                        <p>NIM: 24060131130063</p>
-                        <p>Program Studi: S1 Informatika</p>
-                      </div>
-
-                      <p>Adalah benar mahasiswa aktif pada Fakultas Sains dan Matematika Universitas Diponegoro untuk Tahun Akademik 2024/2025.</p>
-
-                      <p>Demikian surat keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
-                    </div>
-
-                    {/* Signature Section */}
-                    <div className="mt-24">
-                      <div className="flex justify-between">
-                        <div>
-                          {stamp && (
-                            <div className="relative">
-                              <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-                                <Stamp className="w-16 h-16 text-gray-500" />
-                              </div>
-                              <p className="text-xs text-gray-500 mt-2">Stempel Resmi UPA FSM</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-center">
-                          <p className="mb-2">Semarang, {date || "DD/MM/YYYY"}</p>
-                          <p className="font-bold mb-12">Manager Tata Usaha</p>
-                          <div className="border-t border-black mx-auto w-48"></div>
-                          <p className="mt-4 font-bold text-lg">Ahmad Douglas</p>
-                          <p className="text-sm">NIP. 198201012010121001</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="bg-white shadow-lg border border-slate-300">
+                  <StudentLetterPreview
+                    nomor={number || values?.nomorSurat || values?.nomor || "-"}
+                    applicant={{
+                      name: values?.namaLengkap ?? values?.nama ?? "-",
+                      nim: values?.nim ?? "-",
+                      program: values?.programStudi ?? "-",
+                      birthPlace: values?.tempatLahir ?? "-",
+                      birthDate: formatTanggal(values?.tanggalLahir),
+                      address: values?.alamat ?? "-",
+                      semester: semesterLabel,
+                    }}
+                    academicYear={academicYear}
+                    keperluan={values?.keperluan ?? "-"}
+                    signatureImage={values?.signatureImage ?? null}
+                    signatureDate={formatSignedDate(values?.signedAt)}
+                  />
                 </div>
               </div>
             </div>
@@ -294,7 +353,6 @@ export default function PenomoranSuratPage() {
         </div>
       </div>
 
-      {/* ===== FOOTER ACTIONS ===== */}
       <footer className="bg-white border-t px-6 py-4 mt-6">
         <div className="flex justify-between items-center">
           <button
@@ -304,25 +362,13 @@ export default function PenomoranSuratPage() {
             <ChevronLeft className="w-4 h-4" />
             Kembali ke Detail
           </button>
-          <div className="flex gap-3">
-            <button
-              onClick={() => {
-                setNumber("");
-                setStamp(null);
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200 transition"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Reset
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition"
-            >
-              <Save className="w-4 h-4" />
-              Terbitkan Surat
-            </button>
-          </div>
+          <button
+            onClick={handleSave}
+            className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition"
+            disabled={isSaving}
+          >
+            {isSaving ? "Menyimpan..." : "Terbitkan Surat"}
+          </button>
         </div>
       </footer>
     </div>
