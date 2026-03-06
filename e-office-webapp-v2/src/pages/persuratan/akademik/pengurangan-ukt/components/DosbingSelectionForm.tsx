@@ -1,7 +1,7 @@
 import { User } from "@/utils/data";
 import { useStyle, ProFormSelect } from "@ant-design/pro-components";
 import { FormInstance, Card, Row, Col } from "antd";
-import useStyles from "../../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 import { useForm } from "antd/es/form/Form";
 import { Pegawai } from "@/utils/parseStateSurat";
 

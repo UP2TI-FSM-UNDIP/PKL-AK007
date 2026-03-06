@@ -25,7 +25,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Mahasiswa, SuratMasuk } from "@/utils/data";
 import PopUpPengecekKelengkapanDataMahasiswa from "@/pages/components/PopUpPengecekKelengkapanDataMahasiswa";
 import { checkIncompleteData } from "@/constant/step";
-import useStyles from "../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 import qs from "qs";
 import { useFileUpload } from "../pengurangan-ukt/hooks/useFileUpload";
 

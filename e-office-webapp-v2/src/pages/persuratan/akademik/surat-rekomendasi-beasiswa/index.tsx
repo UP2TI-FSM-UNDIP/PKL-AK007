@@ -24,7 +24,7 @@ import {
   UploadProps,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import useStyles from "../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 import { Mahasiswa, SuratMasuk, User } from "@/utils/data";
 
 type InternalNamePath = (string | number)[];

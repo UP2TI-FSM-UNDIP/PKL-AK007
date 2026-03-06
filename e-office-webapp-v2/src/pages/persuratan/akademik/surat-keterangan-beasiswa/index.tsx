@@ -17,7 +17,7 @@ import {
   UploadFile,
 } from "antd";
 import React, { useState } from "react";
-import useStyles from "../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { AxiosService } from "@/utils/axios";
 

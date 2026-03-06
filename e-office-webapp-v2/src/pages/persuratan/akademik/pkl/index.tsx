@@ -23,7 +23,7 @@ import {
   UploadProps,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import useStyles from "../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 import { Mahasiswa, SuratMasuk, User } from "@/utils/data";
 import PopUpPengecekKelengkapanDataMahasiswa from "@/pages/components/PopUpPengecekKelengkapanDataMahasiswa";
 import { checkIncompleteData } from "@/constant/step";

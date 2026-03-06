@@ -31,7 +31,7 @@ import {
   Spin,
 } from "antd";
 import React, { useRef, useState, useEffect } from "react";
-import useStyles from "../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 import { Mahasiswa, User } from "@/utils/data";
 
 // Extend SuratMasuk type to include 'information' property

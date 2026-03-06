@@ -3,7 +3,7 @@ import { ProFormSelect, ProFormText } from '@ant-design/pro-components';
 import { Mahasiswa } from '@/utils/data';
 import { FIELD_LABELS, PROGRAM_STUDI_OPTIONS } from '../constants';
 import { requiredRule, getProgramStudiFromNIM, phoneNumberRule } from '../validation';
-import useStyles from "../../../../form/advanced-form/style.style";
+import useStyles from "@/form/advanced-form/style.style";
 
 
 interface StudentDataFormProps {
