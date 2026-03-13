@@ -6,10 +6,11 @@ import { anonymous, bearer, jwt } from "better-auth/plugins";
 
 const prisma = new PrismaClient();
 export const auth = betterAuth({
-	baseURL: process.env.AUTH_BASE_URL || "http://localhost:3000",
+	baseURL: process.env.AUTH_BASE_URL || "http://10.137.58.124:20032",
 	trustedOrigins: [
 		process.env.AUTH_TRUSTED_ORIGIN || "http://localhost:3001",
 		"http://localhost:3000",
+		"http://10.137.58.124:20031"
 	],
 	// database: prismaAdapter(Prisma, {
 	// 	provider: "postgresql",

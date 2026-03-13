@@ -11,7 +11,11 @@ export const app = new Elysia()
 	.use(swagger())
 	.use(
 		cors({
-			origin: ["http://localhost:3000", "http://localhost:3001"], // env.get("FE_URL").asString(),
+			origin: [
+    "http://10.137.58.124:20031",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ],
 			methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 			credentials: true,
 			allowedHeaders: ["Content-Type", "Authorization"],
