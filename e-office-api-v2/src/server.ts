@@ -8,6 +8,12 @@ import env from "env-var";
 
 
 export const app = new Elysia()
+	.onRequest((ctx) => {
+		console.log(`[Elysia] INCOMING: ${ctx.request.method} ${ctx.request.url}`);
+	})
+	.onError(({ code, error, request }) => {
+		console.log(`[Elysia] ERROR ${code}: ${request.method} ${request.url} - ${error instanceof Error ? error.message : "Unknown error"}`);
+	})
 	.use(swagger())
 	.use(
 		cors({
@@ -15,6 +21,7 @@ export const app = new Elysia()
     "http://10.137.58.124:20031",
     "http://localhost:3000",
     "http://localhost:3001",
+    "https://apps-fsm.undip.ac.id",
   ],
 			methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 			credentials: true,

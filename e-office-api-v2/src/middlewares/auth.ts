@@ -17,9 +17,18 @@ export const authGuardPlugin = new Elysia({
 	name: "auth",
 })
 	.resolve(async ({ status, request: { headers } }) => {
+		const cookie = headers.get("cookie");
+		const host = headers.get("host");
+		const forwardedHost = headers.get("x-forwarded-host");
+		console.log(`[AuthGuard] Cookie: ${cookie?.substring(0, 30)}... | Host: ${host} | F-Host: ${forwardedHost}`);
+		
 		const session = await auth.api.getSession({ headers });
+		console.log("[AuthGuard] Session found:", !!session);
 
-		if (!session) return status(401);
+		if (!session) {
+			console.log("[AuthGuard] Unauthorized access to scoped route");
+			return status(401);
+		}
 		const currentUser = await Prisma.user.findUnique({
 			where: { id: session.user.id },
 			select: { deletedAt: true },

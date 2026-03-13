@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,63 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profile`, {
+          credentials: "include",
+        });
+
+        if (profileResponse.ok) {
+          const profile = (await profileResponse.json()) as {
+            userRole?: { role?: { name?: string } }[] | null;
+          };
+
+          const roleName =
+            profile?.userRole?.map((entry) => entry.role?.name?.toLowerCase()).find(Boolean) ?? "";
+          
+          if (roleName.includes("supervisor")) {
+            router.push("/supervisor/dashboard");
+            return;
+          }
+          if (roleName.includes("manajer") || roleName.includes("manager")) {
+            router.push("/manajerTU/dashboard");
+            return;
+          }
+          if (roleName.includes("upa")) {
+            router.push("/UPA/dashboard");
+            return;
+          }
+          if (roleName.includes("superadmin")) {
+            router.push("/superadmin/dashboard");
+            return;
+          }
+
+          router.push("/mahasiswa/surat-saya");
+          return;
+        }
+      } catch (err) {
+        console.error("Session check failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F5F7FA]">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0A77C8] border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-slate-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,6 +208,7 @@ export default function LoginPage() {
                   type="button"
                   variant="outline"
                   className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
+                  onClick={() => window.location.href = "https://apps-fsm.undip.ac.id/sso?clientId=7beae702-9c0c-42b3-922d-ba406429641b"}
                 >
                   Login with UNDIP SSO
                 </Button>
