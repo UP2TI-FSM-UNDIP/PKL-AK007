@@ -64,6 +64,12 @@ async function main() {
     update: {},
     create: { name: "UPA" },
   });
+  const superadminRole = await prisma.role.upsert({
+    where: { name: "Superadmin" },
+    update: {},
+    create: { name: "Superadmin" },
+  });
+  
 
   // Departemen & Prodi
   const departemen = await prisma.departemen.upsert({
@@ -210,6 +216,20 @@ async function main() {
       programStudiId: prodi.id,
     },
   });
+  const superadminUser = await prisma.user.upsert({
+    where: { email: "superadmin@ak007.test" },
+    update: {},
+    create: {
+      name: "Super Admin",
+      email: "superadmin@ak007.test",
+    },
+  });
+  await prisma.userRole.upsert({
+    where: { userId_roleId: { userId: superadminUser.id, roleId: superadminRole.id } },
+    update: {},
+    create: { userId: superadminUser.id, roleId: superadminRole.id },
+  });
+  
 
   const credentialUsers = [
     mahasiswaUser,
@@ -217,6 +237,7 @@ async function main() {
     supervisorUser,
     manajerUser,
     upaUser,
+    superadminUser,
   ];
   for (const user of credentialUsers) {
     await ensureCredentialAccount(user.id, user.email, DEFAULT_PASSWORD);
