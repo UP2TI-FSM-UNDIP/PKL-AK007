@@ -1,9 +1,7 @@
  "use client";
 
-import {
-  LogOut,
-  NotebookText,
-} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { LogOut, NotebookText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -20,10 +18,17 @@ type SidebarProps = {
   active?: "surat-saya" | "draft-surat" | "ajukan";
 };
 
-const persuratanItems = [
+type PersuratanItem = {
+  key: "surat-saya" | "draft-surat";
+  label: string;
+  icon: LucideIcon;
+  href: string;
+};
+
+const persuratanItems: PersuratanItem[] = [
   { key: "surat-saya", label: "Surat saya", icon: NotebookText, href: "/mahasiswa/surat-saya" },
   { key: "draft-surat", label: "Draft surat", icon: NotebookText, href: "/mahasiswa/draft-surat" },
-] as const;
+];
 
 export function StudentSidebar({ active }: SidebarProps) {
   const router = useRouter();
