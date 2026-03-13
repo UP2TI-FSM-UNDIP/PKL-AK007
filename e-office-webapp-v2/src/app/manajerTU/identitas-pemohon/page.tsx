@@ -561,30 +561,25 @@ export default function IdentitasPemohonPage() {
               ) : history.length === 0 ? (
                 <div className="text-slate-500">Belum ada riwayat.</div>
               ) : (
-                history.map((item, idx) => (
-                  <div key={`${item.role}-${item.date}-${idx}`} className="relative pl-5">
-                    {idx < history.length - 1 ? (
-                      <span className="absolute left-2 top-5 h-[calc(100%-16px)] w-px -translate-x-1/2 bg-slate-200" />
-                    ) : null}
-                    <span className={`absolute left-2 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full ${item.dotClass}`} />
-                    <div className="font-semibold text-slate-900">{item.role}</div>
-                    <div className="mt-1 text-xs text-slate-600">{item.date}</div>
-                    <div className="mt-2 text-xs">
-                      Status:
+                history.map((item, index) => (
+                  <div key={`${item.role}-${item.date}-${index}`} className="flex items-start gap-3 text-sm">
+                    <div className={`mt-1 h-2 w-2 rounded-full ${item.dotClass}`} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="font-semibold text-slate-700">{item.role}</div>
+                        <div className="text-xs text-slate-400">{item.date}</div>
+                      </div>
                       <div className="mt-1 flex flex-col items-start gap-1">
                         {splitStatusText(item.status).map((part, partIndex) => (
                           <span
                             key={partIndex}
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${item.pillClass}`}
+                            className={`inline-flex rounded-full px-2 py-0.5 text-xs ${item.pillClass}`}
                           >
                             {part}
                           </span>
                         ))}
                       </div>
-                    </div>
-                    <div className="mt-2 text-xs text-slate-600">Catatan:</div>
-                    <div className="mt-1 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                      {item.note}
+                      <div className="mt-2 text-xs text-slate-500">Catatan: {item.note}</div>
                     </div>
                   </div>
                 ))

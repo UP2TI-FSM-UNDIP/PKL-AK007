@@ -1,7 +1,7 @@
  "use client";
 
 import Link from "next/link";
-import { ChevronDown, ChevronRight, Inbox, LayoutDashboard, LogOut, User } from "lucide-react";
+import { Inbox, LayoutDashboard, LogOut } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useUiPreferences } from "@/components/common/useUiPreferences";
 import { useRouter } from "next/navigation";
@@ -14,12 +14,11 @@ type ProfileData = {
 };
 
 type Props = {
-  active?: "dashboard" | "surat-masuk" | "semua-surat" | "manajemen" | "profil";
+  active?: "dashboard" | "surat-masuk";
 };
 
 export function SupervisorSidebar({ active = "dashboard" }: Props) {
   const router = useRouter();
-  const [openPersuratan, setOpenPersuratan] = useState(true);
   const { t } = useUiPreferences();
   const [profile, setProfile] = useState<ProfileData | null>(null);
 
@@ -56,42 +55,11 @@ export function SupervisorSidebar({ active = "dashboard" }: Props) {
           href="/supervisor/dashboard"
           active={active === "dashboard"}
         />
-        <div className="space-y-1">
-          <button
-            type="button"
-            onClick={() => setOpenPersuratan((prev) => !prev)}
-            className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-          >
-            <span className="flex items-center gap-2">
-              <Inbox className="h-5 w-5" />
-              <span>{t("persuratan")}</span>
-            </span>
-            {openPersuratan ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-          {openPersuratan ? (
-            <div className="space-y-1 ml-5">
-              <SidebarItem
-                icon={<span className="inline-block h-2 w-2 rounded-full bg-slate-400" />}
-                label={t("suratMasuk")}
-                href="/supervisor/penerima"
-                active={active === "surat-masuk"}
-                nested
-              />
-              <SidebarItem
-                icon={<span className="inline-block h-2 w-2 rounded-full bg-slate-400" />}
-                label={t("semuaSurat")}
-                href="/supervisor/semua-surat"
-                active={active === "semua-surat"}
-                nested
-              />
-            </div>
-          ) : null}
-        </div>
         <SidebarItem
-          icon={<User className="h-5 w-5" />}
-          label={t("profileTitle")}
-          href="/supervisor/profil-saya"
-          active={active === "profil"}
+          icon={<Inbox className="h-5 w-5" />}
+          label={t("suratMasuk")}
+          href="/supervisor/penerima"
+          active={active === "surat-masuk"}
         />
       </nav>
 

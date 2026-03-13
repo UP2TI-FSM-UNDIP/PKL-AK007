@@ -66,7 +66,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/mahasiswa/landing-page");
+    router.push("/mahasiswa/surat-saya");
   };
 
   return (

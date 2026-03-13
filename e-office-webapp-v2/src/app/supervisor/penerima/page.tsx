@@ -13,7 +13,14 @@ import { useUiPreferences } from "@/components/common/useUiPreferences";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-type LetterStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "REJECTED";
+type LetterStatus =
+  | "PENDING"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "UPA_REVIEW"
+  | "DONE"
+  | "MANAGER_REJECTED"
+  | "REJECTED";
 type LetterApi = {
   id: string;
   status: LetterStatus;
@@ -44,6 +51,9 @@ const statusBadge: Record<LetterStatus, string> = {
   PENDING: "text-blue-700 dark:text-blue-300",
   IN_PROGRESS: "text-orange-700 dark:text-orange-300",
   COMPLETED: "text-green-700 dark:text-green-300",
+  UPA_REVIEW: "text-indigo-700 dark:text-indigo-300",
+  DONE: "text-emerald-700 dark:text-emerald-300",
+  MANAGER_REJECTED: "text-rose-700 dark:text-rose-300",
   REJECTED: "text-red-700 dark:text-red-300",
 };
 
@@ -57,12 +67,19 @@ export default function SupervisorPenerimaPage() {
     if (status === "PENDING") return t("pendingStatus");
     if (status === "IN_PROGRESS") return t("revisionStatus");
     if (status === "COMPLETED") return t("completedStatus");
+    if (status === "UPA_REVIEW") return "Review UPA";
+    if (status === "DONE") return "Surat selesai";
+    if (status === "MANAGER_REJECTED") return "Ditolak Manajer TU";
     return t("rejectedStatus");
   };
 
   const getTargetLabel = (status: LetterStatus) => {
-    if (status === "COMPLETED") return t("managerRole");
     if (status === "IN_PROGRESS") return t("studentRole");
+    if (status === "DONE") return t("studentRole");
+    if (status === "MANAGER_REJECTED") return t("studentRole");
+    if (status === "REJECTED") return t("studentRole");
+    if (status === "COMPLETED") return t("managerRole");
+    if (status === "UPA_REVIEW") return t("upaRole");
     return t("supervisorRole");
   };
 

@@ -85,7 +85,7 @@ export function StudentNavbar({
   idLabel = "NIM",
   idValue = "24060121130063",
   prodi = "Informatika",
-  dashboardHref = "/mahasiswa/landing-page",
+  dashboardHref = "/mahasiswa/surat-saya",
   onMenuClick,
 }: StudentNavbarProps) {
   const [showProfile, setShowProfile] = useState(false);
@@ -228,7 +228,7 @@ export function StudentNavbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between bg-gradient-to-r from-[#0A77C8] to-[#1E90FF] px-4 md:px-6 text-white shadow-lg">
+      <header className="app-header sticky top-0 z-50 flex h-16 w-full items-center justify-between bg-gradient-to-r from-[#0A77C8] to-[#1E90FF] px-4 md:px-6 text-white shadow-lg">
         <div className="flex items-center gap-2">
           {onMenuClick ? (
             <button

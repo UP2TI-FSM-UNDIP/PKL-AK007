@@ -24,13 +24,42 @@ export function StudentLetterPreview({
   signatureImage,
 }: StudentLetterPreviewProps) {
   const hasValue = (value: string) => value.trim().length > 0;
+  const spellNumberId = (value: number) => {
+    const mapping: Record<number, string> = {
+      1: "Satu",
+      2: "Dua",
+      3: "Tiga",
+      4: "Empat",
+      5: "Lima",
+      6: "Enam",
+      7: "Tujuh",
+      8: "Delapan",
+      9: "Sembilan",
+      10: "Sepuluh",
+      11: "Sebelas",
+      12: "Dua Belas",
+      13: "Tiga Belas",
+      14: "Empat Belas",
+    };
+    return mapping[value] ?? `${value}`;
+  };
+  const formatSemester = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return trimmed;
+    if (/\(.+\)/.test(trimmed)) return trimmed;
+    if (!/^\d+$/.test(trimmed)) return trimmed;
+    const numeric = Number(trimmed);
+    if (!Number.isFinite(numeric)) return trimmed;
+    return `${numeric} (${spellNumberId(numeric)})`;
+  };
+  const semesterValue = formatSemester(applicant.semester ?? "");
   const hasName = hasValue(applicant.name);
   const hasBirthPlace = hasValue(applicant.birthPlace);
   const hasBirthDate = hasValue(applicant.birthDate);
   const hasAddress = hasValue(applicant.address);
   const hasProgram = hasValue(applicant.program);
   const hasNim = hasValue(applicant.nim);
-  const hasSemester = hasValue(applicant.semester);
+  const hasSemester = hasValue(semesterValue);
   const hasKeperluan = hasValue(keperluan);
   const hasAcademicYearStart = hasValue(academicYear.start);
   const hasAcademicYearEnd = hasValue(academicYear.end);
@@ -41,13 +70,13 @@ export function StudentLetterPreview({
     <div
       className="w-full max-w-[210mm] bg-[#ffffff] text-black"
       style={{
-        minHeight: "297mm",
-        padding: "14mm 25mm 25mm",
+        minHeight: "auto",
+        padding: "1mm 20mm 18mm",
         fontFamily: '"Times New Roman", Times, serif',
       }}
     >
       {/* Header - Kop Surat */}
-      <header className="pb-2 -mx-[20mm]">
+      <header className="pb-1 -mx-[20mm]">
         <img
           src="/kopSurat.png"
           alt="Kop Surat FSM Undip"
@@ -56,20 +85,20 @@ export function StudentLetterPreview({
       </header>
 
       {/* Judul Surat */}
-      <div className="mt-5 flex items-center justify-between gap-6">
+      <div className="mt-3 flex items-center justify-between gap-6">
         <div className="flex-1 text-center">
-          <h1 className="text-[14pt] font-bold uppercase underline underline-offset-[6px]">
+          <h1 className="text-[12pt] font-bold uppercase underline underline-offset-[5px]">
             SURAT KETERANGAN MAHASISWA
           </h1>
-          <div className="mt-2 text-[11pt]">Nomor : {nomor}</div>
+          <div className="mt-1 text-[10pt]">Nomor : {nomor}</div>
         </div>
-        <div className="min-w-[90px] border border-black px-4 py-2 text-center text-[12pt] font-semibold">
+        <div className="min-w-[80px] border border-black px-3 py-2 text-center text-[11pt] font-semibold">
           AK.007
         </div>
       </div>
 
       {/* Isi Surat */}
-      <div className="mt-8 space-y-4 text-[12pt] leading-[1.85]">
+      <div className="mt-5 space-y-3 text-[11pt] leading-[1.6]">
         <p className="text-left">
           Dekan Fakultas Sains dan Matematika Universitas Diponegoro menerangkan bahwa:
         </p>
@@ -147,7 +176,7 @@ export function StudentLetterPreview({
             <tr>
               <td className="py-1 align-top font-normal">Semester</td>
               <td className="align-top text-left">:</td>
-              <td className={hasSemester ? "" : dottedLineClass}>{applicant.semester}</td>
+              <td className={hasSemester ? "" : dottedLineClass}>{semesterValue}</td>
             </tr>
             <tr>
               <td className="py-1 align-top font-normal">Keterangan ini diberikan untuk</td>
@@ -168,16 +197,16 @@ export function StudentLetterPreview({
       </div>
 
       {/* TTD */}
-      <div className="mt-14 flex justify-end">
-        <div className="w-80 pl-25 text-[12pt]">
+      <div className="mt-8 flex justify-end">
+        <div className="w-72 pl-20 text-[11pt]">
           <div className="text-left">{signatureLine}</div>
-          <div className="mt-2 text-left">a.n. Dekan,</div>
+          <div className="mt-1 text-left">a.n. Dekan,</div>
           <div className="mt-1 text-left">Wakil Dekan I,</div>
           <div className="mt-1 text-left">u.b. Manager Bagian Tata Usaha,</div>
 
-          <div className="mt-2">
+          <div className="mt-1">
             {signatureImage ? (
-              <div className="h-36 w-full overflow-hidden">
+              <div className="h-28 w-full overflow-hidden">
                 <img
                   src={signatureImage}
                   alt="Tanda tangan"
@@ -185,12 +214,12 @@ export function StudentLetterPreview({
                 />
               </div>
             ) : (
-              <div className="h-36" />
+              <div className="h-28" />
             )}
           </div>
 
-          <div className="mt-2">
-            <div className="font-bold text-left underline underline-offset-4">
+          <div className="mt-1">
+            <div className="font-bold text-left underline underline-offset-2">
               Lilik Maryuni, S.E., M.Si.
             </div>
             <div className="mt-1 text-left">NIP. 197808042001122001</div>

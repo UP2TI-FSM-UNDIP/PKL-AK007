@@ -13,7 +13,7 @@ export function Navbar() {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-[#0078C9] text-white shadow-sm">
         <div className="flex h-16 items-center justify-between px-6 w-full">
-          <Link href="/mahasiswa/landing-page" className="flex items-center gap-2 font-bold text-lg">
+          <Link href="/mahasiswa/surat-saya" className="flex items-center gap-2 font-bold text-lg">
             {/* Placeholder Logo */}
             <div className="h-8 w-8 rounded bg-white/20 flex items-center justify-center">
               <span className="text-xs">LOGO</span>
@@ -77,16 +77,18 @@ export function Navbar() {
                       </span>
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-                    onClick={() => {
-                      setShowProfile(false)
-                      router.push("/")
-                    }}
-                  >
-                    Log Out
-                  </button>
+                  <div className="mt-4 flex w-full justify-center md:-ml-[140px]">
+                    <button
+                      type="button"
+                      className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                      onClick={() => {
+                        setShowProfile(false)
+                        router.push("/")
+                      }}
+                    >
+                      Log Out
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

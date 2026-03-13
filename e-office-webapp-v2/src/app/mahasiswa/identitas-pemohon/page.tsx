@@ -12,6 +12,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FormStepper } from "@/components/FormStepper";
 import { StudentNavbar } from "@/components/student/StudentNavbar";
+import { StudentSidebar } from "@/components/student/StudentSidebar";
 import { PageHeader } from "@/components/PageHeader";
 import {
   Breadcrumb,
@@ -64,8 +65,8 @@ const formSchema = z.object({
     .max(new Date(), {
       message: "Tanggal lahir tidak valid",
     }),
-  noHp: z.string().regex(/^\+62\d{9,12}$/, {
-    message: "Format nomor HP tidak valid (awalan +62, 9-12 digit)",
+  noHp: z.string().regex(/^(?:\+62|0)8\d{8,11}$/, {
+    message: "Format nomor HP tidak valid (awalan 08 atau +62, total 10-13 digit)",
   }),
   alamat: z.string().min(1, { message: "Alamat harus diisi." }),
 });
@@ -82,9 +83,10 @@ export default function IdentitasPemohonPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [, setSidebarOpen] = React.useState(false);
-  const isResubmit = searchParams?.get("resubmit") === "1";
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const isResubmit = searchParams.get("resubmit") === "1";
   const isSavingRef = React.useRef(false);
+  const autoSaveOnceRef = React.useRef(false);
   const profileLoadedRef = React.useRef(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -191,6 +193,7 @@ export default function IdentitasPemohonPage() {
           noHp: mahasiswa?.noHp ?? "",
           alamat: mahasiswa?.alamat ?? "",
         });
+        void form.trigger();
         profileLoadedRef.current = true;
       } catch (error) {
         console.warn("Failed to load profile data", error);
@@ -232,6 +235,7 @@ export default function IdentitasPemohonPage() {
             ...letter.values,
             tanggalLahir: parsedTanggal,
           });
+          void form.trigger();
         } catch (error) {
           console.warn("Failed to load letter data", error);
         }
@@ -261,6 +265,7 @@ export default function IdentitasPemohonPage() {
           ...draft.data,
           tanggalLahir: parsedTanggal,
         });
+        void form.trigger();
       } catch (error) {
         console.warn("Failed to load draft data", error);
       }
@@ -320,6 +325,26 @@ export default function IdentitasPemohonPage() {
 
   const draftId = searchParams?.get("draftId");
 
+  React.useEffect(() => {
+    if (autoSaveOnceRef.current) {
+      return;
+    }
+    if (draftId) {
+      autoSaveOnceRef.current = true;
+      return;
+    }
+    if (!form.formState.isValid) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      void handleSaveDraft().finally(() => {
+        autoSaveOnceRef.current = true;
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [draftId, form.formState.isValid, handleSaveDraft]);
+
   const handleNext = async () => {
     const isValid = await form.trigger();
     if (!isValid) {
@@ -355,46 +380,50 @@ export default function IdentitasPemohonPage() {
     <div className="min-h-screen bg-[#F3F3F3]">
       <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
 
-      <div className="w-full px-6 py-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/mahasiswa/identitas-pemohon">Form Pengajuan Surat</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator>
-              <span className="text-slate-400">/</span>
-            </BreadcrumbSeparator>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Identitas Pemohon</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+      <div className="flex">
+        {sidebarOpen ? <StudentSidebar active="surat-saya" /> : null}
 
-      <main className="container mx-auto max-w-5xl px-4 py-8">
-        <PageHeader
-          title="Identitas Pemohon"
-          description="Data berikut diisi secara otomatis berdasarkan data Anda. Mohon periksa kembali dan lengkapi data yang diperlukan."
-          breadcrumbItems={[
-            { label: "Form Pengajuan Surat", href: "/mahasiswa/identitas-pemohon" },
-            { label: "Identitas Pemohon" },
-          ]}
-        />
+        <div className="flex-1">
+          <div className="w-full px-6 py-4">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/mahasiswa/identitas-pemohon">Form Pengajuan Surat</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                  <span className="text-slate-400">/</span>
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Identitas Pemohon</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
 
-        <FormStepper
-          currentStep={1}
-          steps={[
-            { label: "Info Pengajuan" },
-            { label: "Detail Pengajuan" },
-            { label: "Lampiran" },
-            { label: "Review & Ajukan" },
-          ]}
-        />
+          <main className="container mx-auto max-w-5xl px-4 py-8">
+            <PageHeader
+              title="Identitas Pemohon"
+              description="Data berikut diisi secara otomatis berdasarkan data Anda. Mohon periksa kembali dan lengkapi data yang diperlukan."
+              breadcrumbItems={[
+                { label: "Form Pengajuan Surat", href: "/mahasiswa/identitas-pemohon" },
+                { label: "Identitas Pemohon" },
+              ]}
+            />
 
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-6 md:px-20 md:py-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormStepper
+              currentStep={1}
+              steps={[
+                { label: "Info Pengajuan" },
+                { label: "Detail Pengajuan" },
+                { label: "Lampiran" },
+                { label: "Review & Ajukan" },
+              ]}
+            />
+
+            <Card className="border-none shadow-sm">
+              <CardContent className="p-6 md:px-20 md:py-8">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
                   <FormField
                     control={form.control}
@@ -599,7 +628,9 @@ export default function IdentitasPemohonPage() {
             </Button>
           </div>
         </div>
-      </main>
+          </main>
+        </div>
+      </div>
     </div>
   );
 }

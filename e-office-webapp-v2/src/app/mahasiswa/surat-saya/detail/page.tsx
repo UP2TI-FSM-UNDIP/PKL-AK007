@@ -1,7 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,7 +14,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 type HistoryApi = {
   id: string;
-  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "REJECTED";
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "UPA_REVIEW" | "DONE" | "MANAGER_REJECTED" | "REJECTED";
   note?: string | null;
   createdAt: string;
   actor?: {
@@ -34,9 +33,14 @@ type HistoryItem = {
 
 type LetterApi = {
   id: string;
-  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "REJECTED";
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "UPA_REVIEW" | "DONE" | "MANAGER_REJECTED" | "REJECTED";
   createdAt: string;
-  values?: Record<string, unknown> | null;
+  values?: {
+    attachments?: AttachmentItem[];
+    nomorSurat?: string;
+    signatureImage?: string | null;
+    signedAt?: string;
+  } & Record<string, unknown> | null;
   letterType?: {
     name: string;
     description?: string | null;
@@ -51,6 +55,9 @@ const statusLabel: Record<HistoryApi["status"], string> = {
   PENDING: "Surat diajukan ke Supervisor Akademik",
   IN_PROGRESS: "Surat perlu revisi",
   COMPLETED: "Surat diajukan ke Manajer TU",
+  UPA_REVIEW: "Surat diajukan ke UPA",
+  DONE: "Surat sudah selesai",
+  MANAGER_REJECTED: "Surat ditolak oleh Manajer TU",
   REJECTED: "Surat ditolak oleh Supervisor",
 };
 
@@ -58,6 +65,9 @@ const statusDot: Record<HistoryApi["status"], string> = {
   PENDING: "bg-blue-400",
   IN_PROGRESS: "bg-orange-400",
   COMPLETED: "bg-green-500",
+  UPA_REVIEW: "bg-indigo-500",
+  DONE: "bg-emerald-500",
+  MANAGER_REJECTED: "bg-rose-500",
   REJECTED: "bg-red-500",
 };
 
@@ -65,6 +75,9 @@ const statusPill: Record<HistoryApi["status"], string> = {
   PENDING: "bg-blue-50 text-blue-700",
   IN_PROGRESS: "bg-orange-50 text-orange-700",
   COMPLETED: "bg-green-50 text-green-700",
+  UPA_REVIEW: "bg-indigo-50 text-indigo-700",
+  DONE: "bg-emerald-50 text-emerald-700",
+  MANAGER_REJECTED: "bg-rose-50 text-rose-700",
   REJECTED: "bg-red-50 text-red-700",
 };
 
@@ -79,11 +92,17 @@ const getRoleLabel = (status: HistoryApi["status"]) => {
   if (status === "IN_PROGRESS" || status === "COMPLETED" || status === "REJECTED") {
     return "Supervisor Akademik";
   }
+  if (status === "UPA_REVIEW" || status === "MANAGER_REJECTED") {
+    return "Manajer TU";
+  }
+  if (status === "DONE") {
+    return "UPA";
+  }
   return "Mahasiswa";
 };
 
-const splitStatusText = (text: string) => {
-  const trimmed = text.trim();
+const splitStatusText = (text?: string | null) => {
+  const trimmed = text?.trim() ?? "";
   if (!trimmed) return [];
   if (trimmed.length <= 20) return [trimmed];
   const words = trimmed.split(/\s+/);
@@ -95,6 +114,17 @@ const splitStatusText = (text: string) => {
 const readValue = (values: Record<string, unknown> | null | undefined, key: string) => {
   const value = values?.[key];
   return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+};
+
+type AttachmentItem = {
+  id: string;
+  name: string;
+  url: string;
+  type?: string;
+  typeLabel?: string;
+  isMain?: boolean;
+  size?: string;
+  fileSize?: number;
 };
 
 export default function SuratSayaDetailPage() {
@@ -176,6 +206,46 @@ export default function SuratSayaDetailPage() {
   const tahunMulai = readValue(values, "tahunMulai");
   const tahunSelesai = readValue(values, "tahunSelesai");
   const tanggalLahir = readValue(values, "tanggalLahir");
+  const attachments = values?.attachments ?? [];
+  const mainAttachment =
+    attachments.find((item) => item.isMain) ?? attachments[0];
+
+  const renderAttachmentPreview = (attachment?: AttachmentItem) => {
+    if (!attachment?.url) {
+      return (
+        <div className="flex h-56 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-500">
+          Tidak ada lampiran
+        </div>
+      );
+    }
+
+    const isImage = attachment.type?.includes("image") || /\.(png|jpe?g)$/i.test(attachment.url);
+    const isPdf = attachment.type?.includes("pdf") || /\.pdf$/i.test(attachment.url);
+
+    if (isImage) {
+      return (
+        <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
+          <img src={attachment.url} alt={attachment.name} className="h-auto w-full object-cover" />
+        </div>
+      );
+    }
+
+    if (isPdf) {
+      return (
+        <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
+          <iframe title={attachment.name} src={attachment.url} className="h-72 w-full" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-3 rounded-lg border border-slate-200 p-3 text-sm text-slate-600">
+        <a href={attachment.url} target="_blank" rel="noreferrer" className="text-[#0A77C8] underline">
+          Buka lampiran
+        </a>
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
@@ -229,16 +299,14 @@ export default function SuratSayaDetailPage() {
               </section>
 
               <SectionCard title="Lampiran">
-                <div className="text-sm font-semibold text-slate-900">KTM - KTM_24060121120001.pdf</div>
-                <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
-                  <Image
-                    src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=1000&q=80"
-                    alt="Lampiran"
-                    width={1000}
-                    height={800}
-                    className="h-auto w-full object-cover"
-                  />
-                </div>
+                {mainAttachment ? (
+                  <>
+                    <div className="text-sm font-semibold text-slate-900">{mainAttachment.name}</div>
+                    {renderAttachmentPreview(mainAttachment)}
+                  </>
+                ) : (
+                  <div className="text-sm text-slate-500">Belum ada lampiran.</div>
+                )}
               </SectionCard>
             </section>
 
@@ -251,7 +319,15 @@ export default function SuratSayaDetailPage() {
                       Preview
                     </Link>
                   </Button>
-                  <Button className="w-full bg-[#0A77C8] hover:bg-[#085ea0]">Download</Button>
+                  <Button
+                    className="w-full bg-[#0A77C8] hover:bg-[#085ea0]"
+                    onClick={() => {
+                      if (!letterId) return;
+                      window.open(`/mahasiswa/pratinjau-surat?letterId=${letterId}&download=1`, "_blank");
+                    }}
+                  >
+                    Download
+                  </Button>
                   {showRevision ? (
                     <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={handleRevision}>
                       Revisi
@@ -271,49 +347,32 @@ export default function SuratSayaDetailPage() {
                   <h3 className="text-sm font-semibold text-slate-900">Riwayat Surat ({history.length})</h3>
                 </div>
                 <Separator className="bg-slate-200" />
-                <div className="mt-4 space-y-6">
+                <div className="mt-4 space-y-4">
                   {isLoading ? (
                     <div className="text-sm text-slate-500">Memuat riwayat...</div>
                   ) : history.length === 0 ? (
                     <div className="text-sm text-slate-500">Belum ada riwayat.</div>
                   ) : (
-                    history.map((item, idx) => (
-                      <div key={`${item.role}-${item.date}`} className="relative pl-6 text-sm text-slate-800">
-                        {idx < history.length - 1 ? (
-                          <span className="absolute left-2 top-5 h-[calc(100%-20px)] w-px -translate-x-1/2 bg-slate-200" aria-hidden />
-                        ) : null}
-                        <span
-                          className={`absolute left-2 top-2 inline-block h-3 w-3 -translate-x-1/2 rounded-full ${item.dotClass}`}
-                          aria-hidden
-                        />
-
-                        <div className="font-semibold text-slate-900 flex items-center gap-2">
-                          <span className="text-slate-500">👤</span>
-                          {item.role}
-                        </div>
-                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-600">
-                          <span className="text-slate-500">⏱</span>
-                          <span>{item.date}</span>
-                        </div>
-                        <div className="mt-2 text-xs text-slate-700">
-                          Status:
+                    history.map((item) => (
+                      <div key={`${item.role}-${item.date}`} className="flex items-start gap-3 text-sm">
+                        <div className={`mt-1 h-2 w-2 rounded-full ${item.dotClass}`} />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="font-semibold text-slate-700">{item.role}</div>
+                            <div className="text-xs text-slate-400">{item.date}</div>
+                          </div>
                           <div className="mt-1 flex flex-col items-start gap-1">
                             {splitStatusText(item.status).map((part, partIndex) => (
                               <span
                                 key={partIndex}
-                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${item.pillClass}`}
+                                className={`inline-flex rounded-full px-2 py-0.5 text-xs ${item.pillClass}`}
                               >
                                 {part}
                               </span>
                             ))}
                           </div>
+                          <div className="mt-2 text-xs text-slate-500">Catatan: {item.note}</div>
                         </div>
-                        <div className="mt-2 text-xs text-slate-600">Catatan:</div>
-                        <div className="mt-1 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                          {item.note}
-                        </div>
-
-                        {idx !== history.length - 1 && <div className="mt-4" />}
                       </div>
                     ))
                   )}
@@ -321,14 +380,15 @@ export default function SuratSayaDetailPage() {
               </div>
             </section>
           </div>
+
+          <footer className="mt-6 flex items-center justify-between text-xs text-slate-500">
+            <span>© 2025 UPTI FSM UNDIP. All Rights Reserved.</span>
+            <a className="font-semibold text-[#0A77C8]" href="#">
+              Support
+            </a>
+          </footer>
         </main>
       </div>
-      <footer className="flex items-center justify-between px-6 pb-6 text-xs text-slate-500">
-        <span>© 2025 UPTI FSM UNDIP. All Rights Reserved.</span>
-        <a className="font-semibold text-[#0A77C8]" href="#">
-          Support
-        </a>
-      </footer>
     </div>
   );
 }

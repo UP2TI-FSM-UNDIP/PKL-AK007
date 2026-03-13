@@ -1,12 +1,7 @@
  "use client";
 
 import {
-  ChevronDown,
-  ChevronRight,
-  ClipboardList,
-  LayoutGrid,
   LogOut,
-  Mail,
   NotebookText,
 } from "lucide-react";
 import Link from "next/link";
@@ -22,21 +17,15 @@ type ProfileData = {
 };
 
 type SidebarProps = {
-  active: "dashboard" | "surat-saya" | "draft-surat" | "ajukan";
+  active?: "surat-saya" | "draft-surat" | "ajukan";
 };
-
-const primaryItems = [
-  { key: "dashboard", label: "Dasbor", icon: LayoutGrid, href: "/mahasiswa/landing-page" },
-] as const;
 
 const persuratanItems = [
   { key: "surat-saya", label: "Surat saya", icon: NotebookText, href: "/mahasiswa/surat-saya" },
   { key: "draft-surat", label: "Draft surat", icon: NotebookText, href: "/mahasiswa/draft-surat" },
-  { key: "ajukan", label: "Ajukan Surat", icon: Mail, href: "/mahasiswa/student-letter-management" },
 ] as const;
 
 export function StudentSidebar({ active }: SidebarProps) {
-  const [isPersuratanOpen, setIsPersuratanOpen] = useState(true);
   const router = useRouter();
   const { t } = useUiPreferences();
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -68,18 +57,23 @@ export function StudentSidebar({ active }: SidebarProps) {
 
   return (
     <aside className="sticky top-16 flex h-[calc(100vh-64px)] w-64 flex-col border-r border-slate-200 bg-white">
-      <nav className="flex-1 p-4 text-sm text-gray-700 space-y-1">
-        {primaryItems.map((item) => {
+      <nav className="flex-1 space-y-1 p-4 text-sm text-gray-700">
+        {persuratanItems.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.key;
-          const label = item.key === "dashboard" ? t("dasbor") : item.label;
+          const label =
+            item.key === "surat-saya"
+              ? t("suratSaya")
+              : item.key === "draft-surat"
+              ? t("draftSurat")
+              : item.label;
 
           return (
             <Link
               key={item.key}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-3 rounded-lg transition ${
-                isActive ? "bg-blue-100 text-blue-600 font-semibold" : "hover:bg-blue-50 hover:text-blue-600"
+              className={`flex items-center gap-3 rounded-lg px-3 py-3 transition ${
+                isActive ? "bg-blue-100 text-blue-600 font-medium" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
               <Icon className="h-5 w-5" />
@@ -87,49 +81,6 @@ export function StudentSidebar({ active }: SidebarProps) {
             </Link>
           );
         })}
-
-        <button
-          type="button"
-          onClick={() => setIsPersuratanOpen((prev) => !prev)}
-          className="w-full flex items-center justify-between px-3 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition"
-        >
-          <span>{t("persuratan")}</span>
-          {isPersuratanOpen ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
-        </button>
-
-        {isPersuratanOpen ? (
-          <div className="ml-8 space-y-1">
-            {persuratanItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = active === item.key;
-              const label =
-                item.key === "surat-saya"
-                  ? t("suratSaya")
-                  : item.key === "draft-surat"
-                  ? t("draftSurat")
-                  : item.key === "ajukan"
-                  ? t("ajukanSurat")
-                  : item.label;
-
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
-                    isActive ? "bg-blue-100 text-blue-600 font-medium" : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        ) : null}
       </nav>
 
       <div className="border-t px-4 py-4">

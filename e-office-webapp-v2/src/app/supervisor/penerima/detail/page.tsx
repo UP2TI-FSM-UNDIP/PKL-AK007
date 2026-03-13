@@ -413,49 +413,32 @@ export default function SupervisorDetailSurat() {
                   <h3 className="text-sm font-semibold text-slate-900">{t("history")} ({history.length})</h3>
                 </div>
                 <Separator className="bg-slate-200" />
-                <div className="mt-4 space-y-6">
+                <div className="mt-4 space-y-4">
                   {isLoading ? (
                     <div className="text-sm text-slate-500">{t("loadingHistory")}</div>
                   ) : history.length === 0 ? (
                     <div className="text-sm text-slate-500">{t("noHistory")}</div>
                   ) : (
-                    history.map((item, idx) => (
-                      <div key={`${item.role}-${item.date}`} className="relative pl-6 text-sm text-slate-800">
-                        {idx < history.length - 1 ? (
-                          <span className="absolute left-2 top-5 h-[calc(100%-20px)] w-px -translate-x-1/2 bg-slate-200" aria-hidden />
-                        ) : null}
-                        <span
-                          className={`absolute left-2 top-2 h-3 w-3 -translate-x-1/2 rounded-full ${item.dotClass}`}
-                          aria-hidden
-                        />
-
-                        <div className="font-semibold text-slate-900 flex items-center gap-2">
-                          <span className="text-slate-500">👤</span>
-                          {item.role}
-                        </div>
-                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-600">
-                          <span className="text-slate-500">⏱</span>
-                          <span>{item.date}</span>
-                        </div>
-                        <div className="mt-2 text-xs text-slate-700">
-                          {t("statusLabel")}:
+                    history.map((item) => (
+                      <div key={`${item.role}-${item.date}`} className="flex items-start gap-3 text-sm">
+                        <div className={`mt-1 h-2 w-2 rounded-full ${item.dotClass}`} />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="font-semibold text-slate-700">{item.role}</div>
+                            <div className="text-xs text-slate-400">{item.date}</div>
+                          </div>
                           <div className="mt-1 flex flex-col items-start gap-1">
                             {splitStatusText(item.status).map((part, partIndex) => (
                               <span
                                 key={partIndex}
-                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${item.pillClass}`}
+                                className={`inline-flex rounded-full px-2 py-0.5 text-xs ${item.pillClass}`}
                               >
                                 {part}
                               </span>
                             ))}
                           </div>
+                          <div className="mt-2 text-xs text-slate-500">{t("note")}: {item.note}</div>
                         </div>
-                        <div className="mt-2 text-xs text-slate-600">{t("note")}:</div>
-                        <div className="mt-1 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                          {item.note}
-                        </div>
-
-                        {idx !== history.length - 1 && <div className="mt-4" />}
                       </div>
                     ))
                   )}

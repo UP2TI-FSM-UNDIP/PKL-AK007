@@ -302,15 +302,13 @@ export default function LampiranPage() {
       <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 sm:px-6">
         <PageHeader
           title="Lampiran"
-          description="Lampirkan dokumen pendukung yang diperlukan."
-          breadcrumbItems={breadcrumbItems}
-        />
+          breadcrumbItems={breadcrumbItems} description={""}        />
 
         <FormStepper steps={steps} currentStep={3} />
 
         <AttachmentSection
           title="Lampiran Utama"
-          requiredNote="Wajib. Unggah minimal 1 dokumen pendukung utama. Format: PDF, JPG, PNG. Maks: 5MB/file."
+          requiredNote="Unggah KTM. Format: PDF, JPG, PNG. Maks: 5MB/file."
           attachments={mainAttachments}
           onFileUpload={(files) => handleFileUpload(files, true)}
           onRemoveAttachment={(id) => handleRemoveAttachment(id, true)}
