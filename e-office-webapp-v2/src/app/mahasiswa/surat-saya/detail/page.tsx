@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -99,7 +100,7 @@ const readValue = (values: Record<string, unknown> | null | undefined, key: stri
 export default function SuratSayaDetailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const letterId = searchParams.get("letterId");
+  const letterId = searchParams?.get("letterId");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [letter, setLetter] = useState<LetterApi | null>(null);

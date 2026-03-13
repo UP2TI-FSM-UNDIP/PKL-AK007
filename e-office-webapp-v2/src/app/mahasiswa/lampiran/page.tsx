@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import { ChevronDown, Eye, FileText, Trash2, UploadCloud } from "lucide-react";
@@ -42,10 +43,10 @@ export default function LampiranPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [, setSidebarOpen] = useState(false);
-  const draftId = searchParams.get("draftId");
-  const isResubmit = searchParams.get("resubmit") === "1";
-  const revision = searchParams.get("revision") === "1";
-  const letterId = searchParams.get("letterId");
+  const draftId = searchParams?.get("draftId");
+  const isResubmit = searchParams?.get("resubmit") === "1";
+  const revision = searchParams?.get("revision") === "1";
+  const letterId = searchParams?.get("letterId");
   const queryParts = [
     ...(revision ? ["revision=1"] : []),
     ...(isResubmit ? ["resubmit=1"] : []),
@@ -87,8 +88,8 @@ export default function LampiranPage() {
   }, [draftId]);
 
   useEffect(() => {
-    const revisionParam = searchParams.get("revision");
-    const letterParam = searchParams.get("letterId");
+    const revisionParam = searchParams?.get("revision");
+    const letterParam = searchParams?.get("letterId");
     if (letterParam) {
       sessionStorage.setItem("revisionLetterId", letterParam);
       return;
@@ -100,7 +101,7 @@ export default function LampiranPage() {
     if (!stored) {
       return;
     }
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("letterId", stored);
     router.replace(`${pathname}?${params.toString()}`);
   }, [pathname, router, searchParams]);

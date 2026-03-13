@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -164,7 +165,7 @@ export default function IdentitasPemohonPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
-  const letterId = searchParams.get("letterId");
+  const letterId = searchParams?.get("letterId");
 
   const loadLetter = useCallback(async () => {
     if (!letterId) {

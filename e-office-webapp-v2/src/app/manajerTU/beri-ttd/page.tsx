@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -123,7 +124,7 @@ export default function PenandatangananSuratPage() {
   const hasStrokeRef = useRef(false);
 
   const handleSaveAndNext = async () => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) {
       alert("ID surat tidak ditemukan.");
       return;
@@ -171,7 +172,7 @@ export default function PenandatangananSuratPage() {
   }, []);
 
   useEffect(() => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) return;
     const loadLetter = async () => {
       const response = await fetch(`${API_BASE}/letters/${letterId}?scope=all`, {
@@ -435,8 +436,8 @@ export default function PenandatangananSuratPage() {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Link
-              href={searchParams.get("letterId")
-                ? `/manajerTU/identitas-pemohon?letterId=${searchParams.get("letterId")}`
+              href={searchParams?.get("letterId")
+                ? `/manajerTU/identitas-pemohon?letterId=${searchParams?.get("letterId")}`
                 : "/manajerTU/identitas-pemohon"}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50"
             >
@@ -602,8 +603,8 @@ export default function PenandatangananSuratPage() {
                 Lihat Pratinjau
               </Link>
               <Link
-                href={searchParams.get("letterId")
-                  ? `/manajerTU/identitas-pemohon?letterId=${searchParams.get("letterId")}`
+                href={searchParams?.get("letterId")
+                  ? `/manajerTU/identitas-pemohon?letterId=${searchParams?.get("letterId")}`
                   : "/manajerTU/identitas-pemohon"}
                 className="block text-center border border-gray-300 text-gray-700 py-3 rounded-lg text-sm hover:bg-gray-50 transition"
               >

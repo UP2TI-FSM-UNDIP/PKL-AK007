@@ -24,7 +24,7 @@ export default function ProfilSayaPage() {
     <div className="flex min-h-screen flex-col bg-[#F5F7FA]">
       <StudentNavbar onMenuClick={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
-        {sidebarOpen ? <StudentSidebar /> : null}
+        {sidebarOpen ? <StudentSidebar active="dashboard" /> : null}
 
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-6 py-8">
           <div>

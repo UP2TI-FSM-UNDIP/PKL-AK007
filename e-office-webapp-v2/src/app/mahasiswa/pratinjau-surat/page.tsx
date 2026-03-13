@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,8 @@ export default function MahasiswaPreviewPage() {
   const handleZoom = (delta: number) => setZoom((z) => clampZoom(z + delta));
 
   useEffect(() => {
-    const draftId = searchParams.get("draftId");
-    const letterId = searchParams.get("letterId");
+    const draftId = searchParams?.get("draftId");
+    const letterId = searchParams?.get("letterId");
     if (!draftId) {
       if (!letterId) {
         return;

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -88,7 +89,7 @@ export default function PratinjauSuratPage() {
   const [values, setValues] = useState<LetterValues | null>(null);
 
   useEffect(() => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) return;
     const loadLetter = async () => {
       const response = await fetch(`${API_BASE}/letters/${letterId}?scope=all`, {
@@ -191,7 +192,7 @@ export default function PratinjauSuratPage() {
                     birthPlace: values?.tempatLahir ?? "-",
                     birthDate: formatTanggal(values?.tanggalLahir),
                     address: values?.alamat ?? "-",
-                    semester: semesterLabel,
+                    semester: semesterLabel ?? "-",
                   }}
                   academicYear={academicYear}
                   keperluan={values?.keperluan ?? "-"}
@@ -206,8 +207,8 @@ export default function PratinjauSuratPage() {
         <div className="bg-white border-t px-6 py-4 flex justify-end gap-3">
           <Link
             href={
-              searchParams.get("letterId")
-                ? `/UPA/identitas-pemohon?letterId=${searchParams.get("letterId")}`
+              searchParams?.get("letterId")
+                ? `/UPA/identitas-pemohon?letterId=${searchParams?.get("letterId")}`
                 : "/UPA/identitas-pemohon"
             }
             className="border px-4 py-2 rounded text-sm"

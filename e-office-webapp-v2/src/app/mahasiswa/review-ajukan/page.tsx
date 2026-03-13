@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { CheckCircle, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -55,13 +56,13 @@ export default function ReviewAjukanPage() {
   const [originalLetter, setOriginalLetter] = useState<DraftData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isRevision = searchParams.get("revision") === "1";
-  const isResubmit = searchParams.get("resubmit") === "1";
-  const letterId = searchParams.get("letterId");
+  const isRevision = searchParams?.get("revision") === "1";
+  const isResubmit = searchParams?.get("resubmit") === "1";
+  const letterId = searchParams?.get("letterId");
 
   useEffect(() => {
-    const revision = searchParams.get("revision");
-    const letterParam = searchParams.get("letterId");
+    const revision = searchParams?.get("revision");
+    const letterParam = searchParams?.get("letterId");
     if (letterParam) {
       sessionStorage.setItem("revisionLetterId", letterParam);
       return;
@@ -73,13 +74,13 @@ export default function ReviewAjukanPage() {
     if (!stored) {
       return;
     }
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("letterId", stored);
     router.replace(`${pathname}?${params.toString()}`);
   }, [pathname, router, searchParams]);
 
   useEffect(() => {
-    const draftId = searchParams.get("draftId");
+    const draftId = searchParams?.get("draftId");
     if (!draftId) {
       return;
     }
@@ -100,7 +101,7 @@ export default function ReviewAjukanPage() {
     loadDraft();
   }, [searchParams]);
 
-  const draftId = searchParams.get("draftId");
+  const draftId = searchParams?.get("draftId");
   useEffect(() => {
     if ((!isRevision && !isResubmit) || !letterId) {
       return;

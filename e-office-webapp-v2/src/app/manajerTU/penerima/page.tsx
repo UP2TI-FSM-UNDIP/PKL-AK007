@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -65,7 +66,7 @@ export default function PenerimaPage() {
     endDate: "",
   });
   const searchParams = useSearchParams();
-  const isAllSurat = searchParams.get("scope") === "all";
+  const isAllSurat = searchParams?.get("scope") === "all";
 
   const getStatusLabel = (status: LetterStatus) => {
     if (status === "UPA_REVIEW") return "Menunggu Penomoran UPA";

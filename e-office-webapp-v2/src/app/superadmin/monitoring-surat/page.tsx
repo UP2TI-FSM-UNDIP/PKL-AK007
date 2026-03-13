@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -73,7 +74,7 @@ const getRoleLabel = (status: LetterStatus) => {
 export default function MonitoringSuratPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedStatus, setSelectedStatus] = useState(searchParams.get("status") || "Semua");
+  const [selectedStatus, setSelectedStatus] = useState(searchParams?.get("status") || "Semua");
   const [selectedRole, setSelectedRole] = useState("Semua");
   const [startDate, setStartDate] = useState("");
   const [page, setPage] = useState(1);
@@ -82,7 +83,7 @@ export default function MonitoringSuratPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const status = searchParams.get("status");
+    const status = searchParams?.get("status");
     if (status) {
       setSelectedStatus(status);
     }

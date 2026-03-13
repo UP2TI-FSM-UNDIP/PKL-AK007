@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -82,7 +83,7 @@ export default function IdentitasPemohonPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [, setSidebarOpen] = React.useState(false);
-  const isResubmit = searchParams.get("resubmit") === "1";
+  const isResubmit = searchParams?.get("resubmit") === "1";
   const isSavingRef = React.useRef(false);
   const profileLoadedRef = React.useRef(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -107,8 +108,8 @@ export default function IdentitasPemohonPage() {
   }
 
   React.useEffect(() => {
-    const revision = searchParams.get("revision");
-    const letterId = searchParams.get("letterId");
+    const revision = searchParams?.get("revision");
+    const letterId = searchParams?.get("letterId");
     if (letterId) {
       sessionStorage.setItem("revisionLetterId", letterId);
       return;
@@ -120,14 +121,14 @@ export default function IdentitasPemohonPage() {
     if (!stored) {
       return;
     }
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("letterId", stored);
     router.replace(`${pathname}?${params.toString()}`);
   }, [pathname, router, searchParams]);
 
   React.useEffect(() => {
-    const resubmit = searchParams.get("resubmit");
-    const letterId = searchParams.get("letterId");
+    const resubmit = searchParams?.get("resubmit");
+    const letterId = searchParams?.get("letterId");
     if (letterId) {
       sessionStorage.setItem("resubmitLetterId", letterId);
       return;
@@ -139,14 +140,14 @@ export default function IdentitasPemohonPage() {
     if (!stored) {
       return;
     }
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("letterId", stored);
     router.replace(`${pathname}?${params.toString()}`);
   }, [pathname, router, searchParams]);
 
   React.useEffect(() => {
-    const draftId = searchParams.get("draftId");
-    const letterId = searchParams.get("letterId");
+    const draftId = searchParams?.get("draftId");
+    const letterId = searchParams?.get("letterId");
     if (draftId || letterId || profileLoadedRef.current) {
       return;
     }
@@ -200,8 +201,8 @@ export default function IdentitasPemohonPage() {
   }, [form, searchParams]);
 
   React.useEffect(() => {
-    const draftId = searchParams.get("draftId");
-    const letterId = searchParams.get("letterId");
+    const draftId = searchParams?.get("draftId");
+    const letterId = searchParams?.get("letterId");
     if (!draftId) {
       if (!letterId) {
         return;
@@ -270,10 +271,10 @@ export default function IdentitasPemohonPage() {
 
   const handleSaveDraft = async (): Promise<string | null> => {
     if (isSavingRef.current) {
-      return searchParams.get("draftId");
+      return searchParams?.get("draftId") ?? null;
     }
     isSavingRef.current = true;
-    const draftId = searchParams.get("draftId");
+    const draftId = searchParams?.get("draftId");
     const values = form.getValues();
     const payload = {
       title: "Surat Keterangan Mahasiswa",
@@ -302,22 +303,22 @@ export default function IdentitasPemohonPage() {
       if (!draftId) {
         const created = (await response.json()) as { id?: string };
         if (created?.id) {
-          const revision = searchParams.get("revision") ? "&revision=1" : "";
+          const revision = searchParams?.get("revision") ? "&revision=1" : "";
           const resubmit = isResubmit ? "&resubmit=1" : "";
-          const letterId = searchParams.get("letterId");
+          const letterId = searchParams?.get("letterId");
           const letterQuery = letterId ? `&letterId=${letterId}` : "";
           router.replace(`/mahasiswa/identitas-pemohon?draftId=${created.id}${revision}${resubmit}${letterQuery}`);
           return created.id;
         }
       }
 
-      return draftId;
+      return draftId ?? null;
     } finally {
       isSavingRef.current = false;
     }
   };
 
-  const draftId = searchParams.get("draftId");
+  const draftId = searchParams?.get("draftId");
 
   const handleNext = async () => {
     const isValid = await form.trigger();
@@ -330,9 +331,9 @@ export default function IdentitasPemohonPage() {
       alert("Gagal menyimpan draft. Pastikan sudah login dan API bisa diakses.");
       return;
     }
-    const revision = searchParams.get("revision") ? "&revision=1" : "";
+    const revision = searchParams?.get("revision") ? "&revision=1" : "";
     const resubmit = isResubmit ? "&resubmit=1" : "";
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     const letterQuery = letterId ? `&letterId=${letterId}` : "";
     router.push(`/mahasiswa/detail-pengajuan?draftId=${savedId}${revision}${resubmit}${letterQuery}`);
   };

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -169,7 +170,7 @@ export default function SupervisorDetailSurat() {
   };
 
   const loadHistory = async () => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) {
       setIsLoading(false);
       return;
@@ -284,7 +285,7 @@ export default function SupervisorDetailSurat() {
     : "-";
 
   const handleHistorySubmit = async (status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "REJECTED", note?: string) => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) return;
 
     const response = await fetch(`${API_BASE}/letters/${letterId}/history?scope=all`, {

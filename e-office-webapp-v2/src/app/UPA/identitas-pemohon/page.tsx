@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -150,7 +151,7 @@ export default function IdentitasPemohonPage() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   useEffect(() => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) {
       return;
     }
@@ -173,7 +174,7 @@ export default function IdentitasPemohonPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) {
       setIsLoadingHistory(false);
       return;
@@ -277,7 +278,7 @@ export default function IdentitasPemohonPage() {
     values?.nomorHP ??
     "-";
   const headerSubtitle = `${letter?.letterType?.name ?? "Surat"} — ${nomorSurat}`;
-  const letterIdParam = searchParams.get("letterId");
+  const letterIdParam = searchParams?.get("letterId");
   const tujuanSaatIni =
     letter?.status === "UPA_REVIEW" || letter?.status === "DONE"
       ? "UPA"

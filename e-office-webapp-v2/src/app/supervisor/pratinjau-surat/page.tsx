@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -93,7 +94,7 @@ export default function SupervisorPreviewSurat() {
   const handleZoom = (delta: number) => setZoom((z) => clampZoom(z + delta));
 
   useEffect(() => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) {
       return;
     }
@@ -200,7 +201,7 @@ export default function SupervisorPreviewSurat() {
 
           <div className="flex justify-end">
             <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50" asChild>
-              <Link href={searchParams.get("letterId") ? `/supervisor/penerima/detail?letterId=${searchParams.get("letterId")}` : "/supervisor/penerima/detail"}>
+              <Link href={searchParams?.get("letterId") ? `/supervisor/penerima/detail?letterId=${searchParams?.get("letterId")}` : "/supervisor/penerima/detail"}>
                 {t("back")}
               </Link>
             </Button>

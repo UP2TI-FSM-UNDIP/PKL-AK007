@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -34,7 +35,7 @@ export default function DetailPengajuanPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [, setSidebarOpen] = React.useState(false);
-  const isResubmit = searchParams.get("resubmit") === "1";
+  const isResubmit = searchParams?.get("resubmit") === "1";
   const isSavingRef = React.useRef(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,8 +51,8 @@ export default function DetailPengajuanPage() {
   };
 
   React.useEffect(() => {
-    const revision = searchParams.get("revision");
-    const letterId = searchParams.get("letterId");
+    const revision = searchParams?.get("revision");
+    const letterId = searchParams?.get("letterId");
     if (letterId) {
       sessionStorage.setItem("revisionLetterId", letterId);
       return;
@@ -63,13 +64,13 @@ export default function DetailPengajuanPage() {
     if (!stored) {
       return;
     }
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("letterId", stored);
     router.replace(`${pathname}?${params.toString()}`);
   }, [pathname, router, searchParams]);
 
   React.useEffect(() => {
-    const draftId = searchParams.get("draftId");
+    const draftId = searchParams?.get("draftId");
     if (!draftId) return;
 
     const loadDraft = async () => {
@@ -97,7 +98,7 @@ export default function DetailPengajuanPage() {
     if (isSavingRef.current) {
       return;
     }
-    const draftId = searchParams.get("draftId");
+    const draftId = searchParams?.get("draftId");
     if (!draftId) {
       return;
     }
@@ -122,10 +123,10 @@ export default function DetailPengajuanPage() {
 
   const handleNext = async () => {
     await handleSaveDraft();
-    const draftId = searchParams.get("draftId");
-    const revision = searchParams.get("revision") === "1";
+    const draftId = searchParams?.get("draftId");
+    const revision = searchParams?.get("revision") === "1";
     const resubmit = isResubmit;
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     const queryParts = [
       ...(revision ? ["revision=1"] : []),
       ...(resubmit ? ["resubmit=1"] : []),
@@ -153,10 +154,10 @@ export default function DetailPengajuanPage() {
   }, [form.formState.isDirty, handleSaveDraft, watchedValues]);
 
   const backHref = (() => {
-    const draftId = searchParams.get("draftId");
-    const revision = searchParams.get("revision") === "1";
+    const draftId = searchParams?.get("draftId");
+    const revision = searchParams?.get("revision") === "1";
     const resubmit = isResubmit;
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     const queryParts = [
       ...(revision ? ["revision=1"] : []),
       ...(resubmit ? ["resubmit=1"] : []),

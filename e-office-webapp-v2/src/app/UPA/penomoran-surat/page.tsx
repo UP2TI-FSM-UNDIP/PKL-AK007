@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -110,7 +111,7 @@ export default function PenomoranSuratPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) return;
     const loadLetter = async () => {
       const response = await fetch(`${API_BASE}/letters/${letterId}?scope=all`, {
@@ -131,7 +132,7 @@ export default function PenomoranSuratPage() {
   };
 
   const handleSave = async () => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     if (!letterId) {
       alert("ID surat tidak ditemukan.");
       return;
@@ -160,7 +161,7 @@ export default function PenomoranSuratPage() {
   };
 
   const handleBack = () => {
-    const letterId = searchParams.get("letterId");
+    const letterId = searchParams?.get("letterId");
     router.push(letterId ? `/UPA/identitas-pemohon?letterId=${letterId}` : "/UPA/identitas-pemohon");
   };
 
