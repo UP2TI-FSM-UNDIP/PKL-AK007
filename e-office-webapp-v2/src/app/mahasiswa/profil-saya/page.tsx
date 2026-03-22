@@ -15,8 +15,9 @@ export default function ProfilSayaPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setShowLogoutConfirm(false);
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/auth/sign-out`, { method: "POST" });
     router.push("/");
   };
 

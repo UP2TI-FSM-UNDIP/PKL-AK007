@@ -81,12 +81,7 @@ export abstract class MinioService {
 
 		fs.unlinkSync(tempFilePath);
 
-		const url = await MinioService.client.presignedUrl(
-			"GET",
-			MinioService.bucketName,
-			folderBucket + nameReplace,
-			7 * 24 * 60 * 60,
-		);
+		const url = `${process.env.EXTERNAL_FE_URL}/minio/file/${folderBucket}${nameReplace}`;
 
 		return url;
 	}
@@ -127,13 +122,7 @@ export abstract class MinioService {
 			// Hapus file temp
 			fs.unlinkSync(tempFilePath);
 
-			// Generate presigned URL
-			const url = await MinioService.client.presignedUrl(
-				"GET",
-				MinioService.bucketName,
-				category_file + nameReplace,
-				7 * 24 * 60 * 60,
-			);
+			const url = `${process.env.EXTERNAL_FE_URL}/minio/file/${category_file}${nameReplace}`;
 
 			return { url, nameReplace };
 		} catch (error) {
@@ -174,12 +163,7 @@ export abstract class MinioService {
 			folderBucket = "";
 		}
 
-		const url = await MinioService.client.presignedUrl(
-			"GET",
-			MinioService.bucketName,
-			folderBucket + objectName,
-			expirySeconds,
-		);
+		const url = `${process.env.EXTERNAL_FE_URL}/minio/file/${folderBucket}${objectName}`;
 		return url;
 	}
 

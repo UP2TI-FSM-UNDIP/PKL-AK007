@@ -1,11 +1,11 @@
-import { type LetterType, Prisma } from "@backend/db/index.ts";
-import { CRUD } from "./__basicCRUD.ts";
+import { type LetterType, Prisma } from "@backend/db/index";
+import { CRUD } from "./__basicCRUD";
 import type {
 	LetterTypeInclude,
 	LetterTypeDelegate,
 	LetterTypeCreateInput,
 	LetterTypeUpdateInput,
-} from "@backend/generated/prisma/models.ts";
+} from "@backend/generated/prisma/models";
 
 export abstract class LetterTypeService extends CRUD<
 	LetterType,

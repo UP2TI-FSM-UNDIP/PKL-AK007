@@ -1,6 +1,6 @@
-import { auth } from "@backend/lib/auth.ts";
-import { authGuardPlugin } from "@backend/middlewares/auth.ts";
-import { Prisma } from "@backend/db/index.ts";
+import { auth } from "@backend/lib/auth";
+import { authGuardPlugin } from "@backend/middlewares/auth";
+import { Prisma } from "@backend/db/index";
 import { Elysia, t } from "elysia";
 
 export default new Elysia().post(

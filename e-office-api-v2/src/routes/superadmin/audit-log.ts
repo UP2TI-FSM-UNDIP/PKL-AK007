@@ -1,5 +1,5 @@
-import { authGuardPlugin, requireRole } from "@backend/middlewares/auth.ts";
-import { Prisma } from "@backend/db/index.ts";
+import { authGuardPlugin, requireRole } from "@backend/middlewares/auth";
+import { Prisma } from "@backend/db/index";
 import { Elysia, t } from "elysia";
 
 const prettyRole = (roleName?: string | null) => {

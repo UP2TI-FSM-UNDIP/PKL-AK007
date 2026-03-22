@@ -56,8 +56,9 @@ export default function SupervisorProfilPage() {
     loadProfile();
   }, [API_BASE]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setShowLogoutConfirm(false);
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/auth/sign-out`, { method: "POST" });
     router.push("/");
   };
 

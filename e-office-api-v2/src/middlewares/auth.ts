@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
-import { auth } from "@backend/lib/auth.ts";
-import { Prisma } from "@backend/db/index.ts";
-import { checkPermission, getUserRoles } from "@backend/lib/casbin.ts";
+import { auth } from "@backend/lib/auth";
+import { Prisma } from "@backend/db/index";
+import { checkPermission, getUserRoles } from "@backend/lib/casbin";
 
 export interface PermissionProps {
 	resource: string;

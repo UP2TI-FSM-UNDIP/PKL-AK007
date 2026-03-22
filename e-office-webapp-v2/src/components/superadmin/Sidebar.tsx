@@ -144,9 +144,10 @@ export default function Sidebar() {
           </div>
         </div>
         <button
-          onClick={() => {
+          onClick={async () => {
             const confirmed = window.confirm(t("logoutConfirm"));
             if (confirmed) {
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/auth/sign-out`, { method: "POST" });
               router.push("/");
             }
           }}

@@ -386,8 +386,9 @@ export function StudentNavbar({
                   <button
                     type="button"
                     className="mt-4 self-end rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-                  onClick={() => {
+                  onClick={async () => {
                       setShowProfile(false);
+                      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/auth/sign-out`, { method: "POST" });
                       router.push("/");
                     }}
                   >

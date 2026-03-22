@@ -628,7 +628,7 @@ export default function TemplateSuratEditorPage() {
                 }}
               >
                 <header className="pb-2 -mx-[20mm]">
-                  <img src="/kopSurat.png" alt="Kop Surat FSM Undip" className="w-[calc(100%+40mm)]" />
+                  <img src="/persuratan-keterangan-mhs/kopSurat.png" alt="Kop Surat FSM Undip" className="w-[calc(100%+40mm)]" />
                 </header>
 
                 <div className="mt-6 space-y-3 text-[12pt] leading-[1.85]">

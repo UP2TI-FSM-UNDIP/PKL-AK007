@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
-import { authGuardPlugin } from "@backend/middlewares/auth.ts";
-import { MinioService } from "@backend/services/minio.service.ts";
+import { authGuardPlugin } from "@backend/middlewares/auth";
+import { MinioService } from "@backend/services/minio.service";
 
 export default new Elysia()
   .use(authGuardPlugin)
@@ -26,4 +26,18 @@ export default new Elysia()
       url: result.url,
       objectName: result.nameReplace,
     };
+  })
+  .get("/file/*", async ({ params, set }) => {
+    try {
+      const objectName = params["*"];
+      const { stat, stream } = await MinioService.getFileStream(objectName);
+      
+      set.headers["Content-Type"] = stat.metaData["content-type"] || "application/octet-stream";
+      set.headers["Content-Length"] = stat.size.toString();
+      
+      return stream;
+    } catch (e) {
+      set.status = 404;
+      return { error: "File not found" };
+    }
   });

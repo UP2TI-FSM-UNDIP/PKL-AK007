@@ -1,13 +1,13 @@
 // mahasiswa.service.ts
 
-import { Prisma, type Mahasiswa } from "@backend/db/index.ts";
+import { Prisma, type Mahasiswa } from "@backend/db/index";
 import type {
 	MahasiswaDelegate,
 	MahasiswaInclude,
 	MahasiswaUncheckedCreateInput,
 	MahasiswaUncheckedUpdateInput,
-} from "@backend/generated/prisma/models.ts";
-import { CRUD } from "./__basicCRUD.ts";
+} from "@backend/generated/prisma/models";
+import { CRUD } from "./__basicCRUD";
 
 export abstract class MahasiswaService extends CRUD<
 	Mahasiswa,

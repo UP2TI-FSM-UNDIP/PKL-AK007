@@ -1,7 +1,7 @@
 import { cors } from "@elysiajs/cors";
 import { serverTiming } from "@elysiajs/server-timing";
 import { swagger } from "@elysiajs/swagger";
-import { auth } from "@backend/lib/auth.ts";
+import { auth } from "@backend/lib/auth";
 import { Elysia } from "elysia";
 import { autoload } from "elysia-autoload";
 import env from "env-var";
@@ -34,7 +34,7 @@ export const app = new Elysia()
 	.use(
 		await autoload({
 			types: {
-				output: "./autogen.routes.ts",
+				output: "./autogen.routes",
 				typeName: "App",
 				useExport: true,
 			},

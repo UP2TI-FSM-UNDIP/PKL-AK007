@@ -1,4 +1,4 @@
-import { Prisma } from "@backend/db/index.ts";
+import { Prisma } from "@backend/db/index";
 
 const resolveRoleName = (user: {
 	email: string;

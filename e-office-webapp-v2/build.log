@@ -1,0 +1,167 @@
+$ next build
+   ▲ Next.js 14.1.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/46) ...
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA/dashboard". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA/dashboard". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA/profil-saya". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA/profil-saya". Read more: https://nextjs.org/docs/messages/prerender-error
+
+   Generating static pages (11/46) 
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/profil-saya". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/profil-saya". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/test". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/test". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/dashboard". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/dashboard". Read more: https://nextjs.org/docs/messages/prerender-error
+
+   Generating static pages (22/46) 
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA/penomoran-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA/penomoran-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA/pratinjau-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA/pratinjau-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA/penerima". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA/penerima". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/UPA/identitas-pemohon". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/UPA/identitas-pemohon". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/mahasiswa/review-ajukan". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/mahasiswa/pratinjau-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/mahasiswa/pratinjau-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+Error occurred prerendering page "/mahasiswa/review-ajukan". Read more: https://nextjs.org/docs/messages/prerender-error
+
+   Generating static pages (34/46) 
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/mahasiswa/lampiran". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/mahasiswa/lampiran". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/pratinjau-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/pratinjau-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/mahasiswa/detail-pengajuan". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/mahasiswa/detail-pengajuan". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/mahasiswa/surat-saya/detail". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/mahasiswa/surat-saya/detail". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/supervisor/pratinjau-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/supervisor/pratinjau-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/identitas-pemohon". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/identitas-pemohon". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/penerima". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/penerima". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/superadmin/monitoring-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/superadmin/monitoring-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/manajerTU/beri-ttd". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/manajerTU/beri-ttd". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/supervisor/revisi-surat". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/supervisor/revisi-surat". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/mahasiswa/identitas-pemohon". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/mahasiswa/identitas-pemohon". Read more: https://nextjs.org/docs/messages/prerender-error
+
+
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/supervisor/penerima/detail". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
+Error occurred prerendering page "/supervisor/penerima/detail". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ ✓ Generating static pages (46/46) 
+
+> Export encountered errors on following paths:
+	/UPA/dashboard/page: /UPA/dashboard
+	/UPA/identitas-pemohon/page: /UPA/identitas-pemohon
+	/UPA/page: /UPA
+	/UPA/penerima/page: /UPA/penerima
+	/UPA/penomoran-surat/page: /UPA/penomoran-surat
+	/UPA/pratinjau-surat/page: /UPA/pratinjau-surat
+	/UPA/profil-saya/page: /UPA/profil-saya
+	/mahasiswa/detail-pengajuan/page: /mahasiswa/detail-pengajuan
+	/mahasiswa/identitas-pemohon/page: /mahasiswa/identitas-pemohon
+	/mahasiswa/lampiran/page: /mahasiswa/lampiran
+	/mahasiswa/pratinjau-surat/page: /mahasiswa/pratinjau-surat
+	/mahasiswa/review-ajukan/page: /mahasiswa/review-ajukan
+	/mahasiswa/surat-saya/detail/page: /mahasiswa/surat-saya/detail
+	/manajerTU/beri-ttd/page: /manajerTU/beri-ttd
+	/manajerTU/dashboard/page: /manajerTU/dashboard
+	/manajerTU/identitas-pemohon/page: /manajerTU/identitas-pemohon
+	/manajerTU/page: /manajerTU
+	/manajerTU/penerima/page: /manajerTU/penerima
+	/manajerTU/pratinjau-surat/page: /manajerTU/pratinjau-surat
+	/manajerTU/profil-saya/page: /manajerTU/profil-saya
+	/manajerTU/test/page: /manajerTU/test
+	/superadmin/monitoring-surat/page: /superadmin/monitoring-surat
+	/supervisor/penerima/detail/page: /supervisor/penerima/detail
+	/supervisor/pratinjau-surat/page: /supervisor/pratinjau-surat
+	/supervisor/revisi-surat/page: /supervisor/revisi-surat
+error: script "build" exited with code 1

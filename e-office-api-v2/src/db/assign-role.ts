@@ -1,4 +1,4 @@
-import { Prisma } from "@backend/db/index.ts";
+import { Prisma } from "@backend/db/index";
 
 const [emailArg, roleArg] = process.argv.slice(2);
 const email = emailArg?.trim();

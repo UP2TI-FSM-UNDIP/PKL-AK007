@@ -1,5 +1,5 @@
-import { type LetterTemplate, Prisma } from "@backend/db/index.ts";
-import { CRUD } from "./__basicCRUD.ts";
+import { type LetterTemplate, Prisma } from "@backend/db/index";
+import { CRUD } from "./__basicCRUD";
 import type {
 	LetterTemplateCreateInput,
 	LetterTemplateCreateManyInput,
@@ -8,9 +8,9 @@ import type {
 	LetterTemplateUncheckedCreateInput,
 	LetterTemplateUpdateArgs,
 	LetterTemplateUpdateInput,
-} from "@backend/generated/prisma/models.ts";
+} from "@backend/generated/prisma/models";
 import { z } from "zod";
-import { LetterTypeService } from "./letterType.service.ts";
+import { LetterTypeService } from "./letterType.service";
 
 const LetterOverlayPositionV1 = z.object({
 	x: z.number(),

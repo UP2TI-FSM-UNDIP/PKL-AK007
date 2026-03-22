@@ -1,8 +1,8 @@
-import { authGuardPlugin, requirePermission } from "@backend/middlewares/auth.ts";
-import { Prisma } from "@backend/db/index.ts";
+import { authGuardPlugin, requirePermission } from "@backend/middlewares/auth";
+import { Prisma } from "@backend/db/index";
 import { Elysia, t } from "elysia";
 import { hashPassword } from "better-auth/crypto";
-import { auth } from "@backend/lib/auth.ts";
+import { auth } from "@backend/lib/auth";
 
 const cleanupUserData = async (id: string) => {
 	const anonymizedEmail = `deleted+${id}+${Date.now()}@ak007.test`;

@@ -1,5 +1,5 @@
-import { auth } from "@backend/lib/auth.ts";
-import { PrismaClient } from "@backend/db/index.ts";
+import { auth } from "@backend/lib/auth";
+import { PrismaClient } from "@backend/db/index";
 import { Elysia, t } from "elysia";
 import { setSessionCookie } from "better-auth/cookies";
 import { APIError } from "better-auth";

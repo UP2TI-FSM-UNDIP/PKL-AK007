@@ -143,9 +143,10 @@ export function UPASidebar() {
         <button
           type="button"
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
-          onClick={() => {
+          onClick={async () => {
             const confirmed = window.confirm(t("logoutConfirm"));
             if (confirmed) {
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/auth/sign-out`, { method: "POST" });
               router.push("/");
             }
           }}

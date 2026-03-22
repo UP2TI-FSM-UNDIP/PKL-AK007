@@ -1,11 +1,11 @@
-import { Prisma, type User } from "@backend/db/index.ts";
-import { CRUD } from "./__basicCRUD.ts";
+import { Prisma, type User } from "@backend/db/index";
+import { CRUD } from "./__basicCRUD";
 import type {
 	UserCreateInput,
 	UserDelegate,
 	UserInclude,
 	UserUpdateInput,
-} from "@backend/generated/prisma/models.ts";
+} from "@backend/generated/prisma/models";
 
 export abstract class UserService extends CRUD<User, UserDelegate, UserInclude>(
 	Prisma.user,

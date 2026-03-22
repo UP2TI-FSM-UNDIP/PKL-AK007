@@ -30,7 +30,7 @@ export function Navbar() {
             >
               <span className="text-sm font-semibold text-white hidden sm:block">Mahasiswa</span>
               <Avatar className="h-9 w-9 border-2 border-white/20">
-                <AvatarImage src="/avatars/01.png" alt="@shadcn" />
+                <AvatarImage src="/persuratan-keterangan-mhs/avatars/01.png" alt="@shadcn" />
                 <AvatarFallback className="bg-sky-200 text-sky-900 font-bold">AD</AvatarFallback>
               </Avatar>
             </button>
@@ -81,8 +81,9 @@ export function Navbar() {
                     <button
                       type="button"
                       className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-                      onClick={() => {
+                      onClick={async () => {
                         setShowProfile(false)
+                        await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/auth/sign-out`, { method: "POST" });
                         router.push("/")
                       }}
                     >

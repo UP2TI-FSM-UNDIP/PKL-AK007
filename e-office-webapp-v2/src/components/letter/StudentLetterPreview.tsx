@@ -78,7 +78,7 @@ export function StudentLetterPreview({
       {/* Header - Kop Surat */}
       <header className="pb-1 -mx-[20mm]">
         <img
-          src="/kopSurat.png"
+          src="/persuratan-keterangan-mhs/kopSurat.png"
           alt="Kop Surat FSM Undip"
           className="w-[calc(100%+40mm)]"
         />

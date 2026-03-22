@@ -1,5 +1,5 @@
-import { auth } from "@backend/lib/auth.ts";
-import { Prisma } from "@backend/db/index.ts";
+import { auth } from "@backend/lib/auth";
+import { Prisma } from "@backend/db/index";
 import { Elysia, t } from "elysia";
 
 const getRoleNameFromEmail = (email: string) => {

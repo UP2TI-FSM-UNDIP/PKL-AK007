@@ -1,0 +1,47 @@
+import type { ElysiaWithBaseUrl } from "elysia-autoload";
+import type Route0 from "./routes/letters";
+import type Route1 from "./routes/me";
+import type Route2 from "./routes/drafts";
+import type Route3 from "./routes/dash";
+import type Route4 from "./routes/minio";
+import type Route5 from "./routes/profile";
+import type Route6 from "./routes/master/role";
+import type Route7 from "./routes/master/permission";
+import type Route8 from "./routes/master/pegawai";
+import type Route9 from "./routes/master/suratType";
+import type Route10 from "./routes/master/user";
+import type Route11 from "./routes/master/mahasiswa";
+import type Route12 from "./routes/master/suratTemplate";
+import type Route13 from "./routes/master/prodi";
+import type Route14 from "./routes/master/program-studi";
+import type Route15 from "./routes/master/departemen";
+import type Route16 from "./routes/superadmin/audit-log";
+import type Route17 from "./routes/superadmin/dashboard";
+import type Route18 from "./routes/superadmin/settings";
+import type Route19 from "./routes/auth/sso";
+import type Route20 from "./routes/public/register";
+import type Route21 from "./routes/public/sign-in";
+
+
+    export type App = ElysiaWithBaseUrl<"/letters", typeof Route0>
+              & ElysiaWithBaseUrl<"/me", typeof Route1>
+              & ElysiaWithBaseUrl<"/drafts", typeof Route2>
+              & ElysiaWithBaseUrl<"/dash", typeof Route3>
+              & ElysiaWithBaseUrl<"/minio", typeof Route4>
+              & ElysiaWithBaseUrl<"/profile", typeof Route5>
+              & ElysiaWithBaseUrl<"/master/role", typeof Route6>
+              & ElysiaWithBaseUrl<"/master/permission", typeof Route7>
+              & ElysiaWithBaseUrl<"/master/pegawai", typeof Route8>
+              & ElysiaWithBaseUrl<"/master/suratType", typeof Route9>
+              & ElysiaWithBaseUrl<"/master/user", typeof Route10>
+              & ElysiaWithBaseUrl<"/master/mahasiswa", typeof Route11>
+              & ElysiaWithBaseUrl<"/master/suratTemplate", typeof Route12>
+              & ElysiaWithBaseUrl<"/master/prodi", typeof Route13>
+              & ElysiaWithBaseUrl<"/master/program-studi", typeof Route14>
+              & ElysiaWithBaseUrl<"/master/departemen", typeof Route15>
+              & ElysiaWithBaseUrl<"/superadmin/audit-log", typeof Route16>
+              & ElysiaWithBaseUrl<"/superadmin/dashboard", typeof Route17>
+              & ElysiaWithBaseUrl<"/superadmin/settings", typeof Route18>
+              & ElysiaWithBaseUrl<"/auth/sso", typeof Route19>
+              & ElysiaWithBaseUrl<"/public/register", typeof Route20>
+              & ElysiaWithBaseUrl<"/public/sign-in", typeof Route21>

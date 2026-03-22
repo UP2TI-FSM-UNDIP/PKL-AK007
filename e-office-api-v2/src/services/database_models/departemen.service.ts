@@ -1,10 +1,10 @@
-import { Departemen, Prisma } from "@backend/db/index.ts";
-import { CRUD } from "./__basicCRUD.ts";
+import { Departemen, Prisma } from "@backend/db/index";
+import { CRUD } from "./__basicCRUD";
 import type {
 	DepartemenDelegate,
 	DepartemenInclude,
 	DepartemenUncheckedCreateInput,
-} from "@backend/generated/prisma/models.ts";
+} from "@backend/generated/prisma/models";
 
 export abstract class DepartemenService extends CRUD<
 	Departemen,

@@ -1,14 +1,14 @@
 // programstudi.service.ts
 
-import { Prisma, type ProgramStudi } from "@backend/db/index.ts";
+import { Prisma, type ProgramStudi } from "@backend/db/index";
 import type {
 	ProgramStudiCreateArgs,
 	ProgramStudiCreateInput,
 	ProgramStudiDelegate,
 	ProgramStudiInclude,
 	ProgramStudiUpdateInput,
-} from "@backend/generated/prisma/models.ts";
-import { CRUD } from "./__basicCRUD.ts";
+} from "@backend/generated/prisma/models";
+import { CRUD } from "./__basicCRUD";
 
 export abstract class ProgramStudiService extends CRUD<
 	ProgramStudi,
