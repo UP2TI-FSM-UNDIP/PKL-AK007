@@ -139,6 +139,18 @@ export default function ReviewAjukanPage() {
   }, [isResubmit, letterId]);
 
   const normalize = (value?: string) => (value ?? "").trim();
+  type StringDraftKey =
+    | "namaLengkap"
+    | "nim"
+    | "email"
+    | "departemen"
+    | "programStudi"
+    | "tempatLahir"
+    | "tanggalLahir"
+    | "noHp"
+    | "alamat"
+    | "jenisSurat"
+    | "keperluan";
   const normalizeAttachments = (items?: AttachmentItem[]) => {
     const normalized = (items ?? []).map((item) => ({
       name: item.name ?? "",
@@ -152,7 +164,7 @@ export default function ReviewAjukanPage() {
   const hasChanges = (() => {
     if (!isRevision && !isResubmit) return true;
     if (!draft || !originalLetter) return false;
-    const keys: (keyof DraftData)[] = [
+    const keys: StringDraftKey[] = [
       "namaLengkap",
       "nim",
       "email",
