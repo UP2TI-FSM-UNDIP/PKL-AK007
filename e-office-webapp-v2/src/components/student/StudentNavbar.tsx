@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { UiControls } from "@/components/common/UiControls";
 import { useUiPreferences } from "@/components/common/useUiPreferences";
+import { OnboardingModal } from "@/components/OnboardingModal";
 
 type StudentNavbarProps = {
   userLabel?: string;
@@ -108,6 +109,7 @@ export function StudentNavbar({
   const displayInitials = getInitials(displayName) ?? initials;
   const displayIdLabel = translateIdLabel(defaultIdLabel, lang);
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const needsOnboarding = roleName === "mahasiswa" && profile?.mahasiswa && profile.mahasiswa.nim === "";
 
   useEffect(() => {
     const stored = localStorage.getItem("studentNotifDismissed");
@@ -228,6 +230,7 @@ export function StudentNavbar({
 
   return (
     <>
+      <OnboardingModal isOpen={Boolean(needsOnboarding)} onSuccess={() => window.location.reload()} />
       <header className="app-header sticky top-0 z-50 flex h-16 w-full items-center justify-between bg-gradient-to-r from-[#0A77C8] to-[#1E90FF] px-4 md:px-6 text-white shadow-lg">
         <div className="flex items-center gap-2">
           {onMenuClick ? (

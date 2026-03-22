@@ -10,7 +10,6 @@ export default new Elysia()
 			return ProgramStudiService.getAll();
 		},
 		{
-			...requirePermission("prodi", "read"),
 			body: t.Object({}),
 		},
 	)

@@ -57,15 +57,14 @@ const ssoPlugin = {
 					});
 					userToSession = newUser;
 
-					// SYNC ROLES AND PROFILES (Mahasiswa/Pegawai)
-					const role = ssoUser.role; // e.g. "mahasiswa", "dosen", "staff"
-					const nim_nip = email.split("@")[0];
+					// SYNC ROLES AND PROFILES (Mahasiswa/Superadmin)
+					const role = ssoUser.role; // "mahasiswa", "superadmin"
 
 					if (role === "mahasiswa") {
 						await prisma.mahasiswa.create({
 							data: {
 								userId: newUser.id,
-								nim: nim_nip,
+								nim: "", // Left empty for onboarding modal
 								tahunMasuk: "",
 								noHp: "",
 							},
@@ -79,17 +78,8 @@ const ssoPlugin = {
 								},
 							});
 						}
-					} else {
-						// Pegawai (Dosen/Staff)
-						await prisma.pegawai.create({
-							data: {
-								userId: newUser.id,
-								nip: nim_nip,
-								jabatan: role,
-							},
-						});
-						const targetRole = role === "dosen" ? "dosen" : "staff";
-						const roleEntry = await prisma.role.findFirst({ where: { name: targetRole } });
+					} else if (role === "superadmin") {
+						const roleEntry = await prisma.role.findFirst({ where: { name: "superadmin" } });
 						if (roleEntry) {
 							await prisma.userRole.create({
 								data: {

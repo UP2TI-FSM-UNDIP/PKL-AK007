@@ -48,8 +48,12 @@ export default function LoginPage() {
             return;
           }
 
-          router.push("/mahasiswa/surat-saya");
-          return;
+          if (roleName.includes("mahasiswa")) {
+            router.push("/mahasiswa/surat-saya");
+            return;
+          }
+          
+          setError("Akun Anda belum memiliki akses valid di sistem.");
         }
       } catch (err) {
         console.error("Session check failed:", err);
@@ -123,11 +127,16 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/mahasiswa/surat-saya");
+    if (roleName.includes("mahasiswa")) {
+      router.push("/mahasiswa/surat-saya");
+      return;
+    }
+
+    setError("Akun Anda belum memiliki akses valid di sistem.");
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] bg-[url('/gedung%20AP.png')] bg-cover bg-[center_60%] bg-no-repeat">
+    <div className="min-h-screen bg-[#F5F7FA] bg-[url('/persuratan-keterangan-mhs/gedung%20AP.png')] bg-cover bg-[center_60%] bg-no-repeat">
       <header className="flex h-14 items-center justify-between bg-[#0A77C8] px-6 text-white">
         <div className="flex items-center gap-3">
           <Image

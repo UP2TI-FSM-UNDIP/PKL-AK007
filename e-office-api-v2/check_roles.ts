@@ -1,23 +1,16 @@
-import { PrismaClient } from "./src/generated/prisma/client.ts";
-
-const prisma = new PrismaClient();
+import { Prisma } from "./src/db/index";
 
 async function main() {
-  try {
-    const rolesWithCounts = await prisma.role.findMany({
-      include: {
-        _count: {
-          select: { users: true }
+  const users = await Prisma.user.findMany({
+    include: {
+      userRole: {
+        include: {
+          role: true
         }
       }
-    });
-    console.log("Current Roles and User Counts in Database:");
-    console.log(JSON.stringify(rolesWithCounts, null, 2));
-  } catch (error) {
-    console.error("Error fetching roles:", error);
-  } finally {
-    await prisma.$disconnect();
-  }
+    }
+  });
+  console.log(JSON.stringify(users.map(u => ({ email: u.email, name: u.name, roles: u.userRole.map(ur => ur.role.name) })), null, 2));
 }
 
-main();
+main().catch(console.error).finally(() => Prisma.$disconnect());

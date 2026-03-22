@@ -45,6 +45,9 @@ const getActivityAction = ({
 };
 
 const mahasiswaSchema = t.Object({
+	nim: t.Optional(t.String()),
+	tahunMasuk: t.Optional(t.String()),
+	programStudiId: t.Optional(t.String()),
 	noHp: t.Optional(t.String()),
 	alamat: t.Optional(t.String()),
 	tempatLahir: t.Optional(t.String()),
