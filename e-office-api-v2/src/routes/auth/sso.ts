@@ -7,23 +7,33 @@ import { APIError } from "better-auth";
 const prisma = new PrismaClient();
 
 export default new Elysia()
-    /**
-     * SSO Callback Entry (Hit by SSO Portal Server-Side)
-     * Step 1 in guide: Portal hits this, we return the path for the browser redirect.
-     */
-    .get("/", async ({ headers }) => {
+    .get("/", async ({ headers, set }) => {
         const authHeader = headers.authorization;
         console.log("[SSO Portal Hit] authHeader:", authHeader?.substring(0, 20) + "...");
 
         if (!authHeader) {
+            set.status = 401;
             return { status: false, message: "No Authorization header" };
         }
 
-        // We return the path RELATIVE to the application's base URL.
-        // The portal will prepend "persuratan-keterangan-mhs/" automatically.
-        // We include the trailing slash as per Next.js config (trailingSlash: true).
+        const validateUrl = process.env.SSO_VALIDATE_URL || "https://apps-fsm.undip.ac.id/sso_api/users/validate";
+        try {
+            const validateRes = await fetch(validateUrl, {
+                headers: { Authorization: authHeader },
+            });
+
+            if (!validateRes.ok) {
+                set.status = 401;
+                return { status: false, message: "Invalid SSO token" };
+            }
+        } catch (err) {
+            console.error("[SSO Portal Hit] Validation error:", err);
+            set.status = 401;
+            return { status: false, message: "Invalid SSO token" };
+        }
+
         const callbackUrl = `/auth/sso/bridge/?token=${encodeURIComponent(authHeader)}`;
-        console.log("[SSO Portal Hit] Returning relative callback_url:", callbackUrl);
+        console.log("[SSO Portal Hit] Token valid. Returning callback_url:", callbackUrl);
 
         return {
             status: true,
